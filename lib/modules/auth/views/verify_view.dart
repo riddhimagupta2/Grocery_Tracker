@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/service/auth_service.dart';
-import '../../../config/app_theme.dart';
+import '../../../config/app_colour.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../controllers/auth_cont.dart';
 

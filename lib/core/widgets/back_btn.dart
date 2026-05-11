@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../config/app_theme.dart';
+import '../../config/app_colour.dart';
+
 
 class BackBtn extends StatelessWidget {
   final VoidCallback? onTap;

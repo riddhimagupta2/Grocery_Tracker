@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../config/app_theme.dart';
+import '../../../config/app_colour.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_input.dart';
 import '../../../core/widgets/divider.dart';
@@ -9,8 +9,17 @@ import '../../../core/widgets/error_banner.dart';
 import '../../../core/widgets/social_btn.dart';
 import '../controllers/auth_cont.dart';
 
-class LoginView extends GetView<AuthController> {
+class LoginView extends StatefulWidget {
   const LoginView({super.key});
+
+  @override
+  State<LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView> {
+  final GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
+
+  AuthController get controller => Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -24,14 +33,14 @@ class LoginView extends GetView<AuthController> {
             children: [
               const SizedBox(height: 32),
 
-              
+
               _Header(),
 
               const SizedBox(height: 32),
 
-              
+
               Form(
-                key: controller.loginFormKey,
+                key: loginFormKey,
                 child: Column(
                   children: [
                     AppTextField(
@@ -54,7 +63,7 @@ class LoginView extends GetView<AuthController> {
                       prefixIcon: Icons.lock_outline,
                       validator: controller.validatePassword,
                       textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => controller.login(),
+                      onFieldSubmitted: (_) => controller.login(loginFormKey),
                       suffixIcon: IconButton(
                         icon: Icon(
                           controller.isPasswordVisible.value
@@ -69,7 +78,7 @@ class LoginView extends GetView<AuthController> {
 
                     const SizedBox(height: 6),
 
-                    
+
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -89,28 +98,28 @@ class LoginView extends GetView<AuthController> {
 
                     const SizedBox(height: 20),
 
-                    
+
                     Obx(() => controller.errorMessage.value.isNotEmpty
                         ? ErrorBanner(message: controller.errorMessage.value)
                         : const SizedBox.shrink()),
 
                     const SizedBox(height: 8),
 
-                    
+
                     Obx(() => AppButton(
                       label: 'Sign In',
                       isLoading: controller.isLoading.value,
-                      onPressed: controller.login,
+                      onPressed: ()=> controller.login(loginFormKey),
                     )),
 
                     const SizedBox(height: 20),
 
-                    
+
                     const OrDivider(label: 'or continue with',),
 
                     const SizedBox(height: 16),
 
-                    
+
                     SocialButton(
                       label: 'Continue with Google',
                       type: SocialType.google,
@@ -119,7 +128,7 @@ class LoginView extends GetView<AuthController> {
 
                     const SizedBox(height: 10),
 
-                    
+
                     SocialButton(
                       label: 'Continue with Apple',
                       type: SocialType.apple,
@@ -128,7 +137,7 @@ class LoginView extends GetView<AuthController> {
 
                     const SizedBox(height: 24),
 
-                    
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -171,7 +180,7 @@ class _Header extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        
+
         Container(
           width: 52,
           height: 52,

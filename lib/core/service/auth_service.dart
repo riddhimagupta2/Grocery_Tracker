@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 import '../../config/app_routes.dart';
@@ -22,9 +23,14 @@ class FirebaseAuthService extends GetxService {
   }
 
   Future<void> _handleAuthChange(User? user) async {
-    if (user != null) {
-      appUser.value = await _userRepo.getUser(user.uid);
-    } else {
+    try {
+      if (user != null) {
+        appUser.value = await _userRepo.getUser(user.uid);
+      } else {
+        appUser.value = null;
+      }
+    } catch (e) {
+      debugPrint("Firestore error: $e");
       appUser.value = null;
     }
   }

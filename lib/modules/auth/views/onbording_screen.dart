@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../config/app_theme.dart';
+import '../../../config/app_colour.dart';
 import '../controllers/auth_cont.dart';
 
 class OnboardingView extends GetView<AuthController> {

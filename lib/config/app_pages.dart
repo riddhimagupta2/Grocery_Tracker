@@ -6,6 +6,8 @@ import '../modules/auth/views/splash_screen.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/signup_view.dart';
 import '../modules/auth/views/verify_view.dart';
+import '../modules/home/bindings/home_binding.dart';
+import '../modules/home/views/home_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -22,13 +24,17 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.login,
-      page: () => const LoginView(),
+      page: () =>  LoginView(),
       binding: AuthBinding(),
+      transition: Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 350),
     ),
     GetPage(
       name: AppRoutes.signup,
-      page: () => const SignupView(),
+      page: () =>  SignupView(),
       binding: AuthBinding(),
+      transition: Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 350),
     ),
 
     GetPage(
@@ -42,10 +48,10 @@ class AppPages {
       binding: AuthBinding(),
     ),
 
-    // GetPage(
-    //   name: AppRoutes.home,
-    //   page: () => const HomeView(),
-    //   binding: HomeBinding(),
-    // ),
+    GetPage(
+      name: AppRoutes.home,
+      page: () => const HomeView(),
+      binding: HomeBinding(),
+    ),
   ];
 }

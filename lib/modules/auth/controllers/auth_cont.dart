@@ -9,14 +9,14 @@ import '../../../core/service/auth_service.dart';
 class AuthController extends GetxController {
   final _authService = Get.find<FirebaseAuthService>();
 
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmController = TextEditingController();
-  final forgotEmailController = TextEditingController();
+  late TextEditingController nameController;
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+  late TextEditingController confirmController;
+  late TextEditingController forgotEmailController;
+  late PageController pageController;
 
-  final loginFormKey = GlobalKey<FormState>();
-  final signupFormKey = GlobalKey<FormState>();
+
   final forgotFormKey = GlobalKey<FormState>();
 
   final isLoading = false.obs;
@@ -30,8 +30,18 @@ class AuthController extends GetxController {
 
   Timer? _verifyTimer;
   Timer? _countdownTimer;
-  final pageController = PageController();
 
+  @override
+  void onInit() {
+    super.onInit();
+
+    nameController        = TextEditingController();
+    emailController       = TextEditingController();
+    passwordController    = TextEditingController();
+    confirmController     = TextEditingController();
+    forgotEmailController = TextEditingController();
+    pageController        = PageController();
+  }
   @override
   void onClose() {
     nameController.dispose();
@@ -51,11 +61,11 @@ class AuthController extends GetxController {
     final onboardDone = prefs.getBool('onboarding_complete') ?? false;
 
     if (_authService.isLoggedIn) {
-      Get.offAllNamed(AppRoutes.home);
+      Get.offNamed(AppRoutes.home);
     } else if (!onboardDone) {
-      Get.offAllNamed(AppRoutes.onboarding);
+      Get.offNamed(AppRoutes.onboarding);
     } else {
-      Get.offAllNamed(AppRoutes.login);
+      Get.offNamed(AppRoutes.login);
     }
   }
 
@@ -74,10 +84,10 @@ class AuthController extends GetxController {
   Future<void> finishOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_complete', true);
-    Get.offAllNamed(AppRoutes.login);
+    Get.offNamed(AppRoutes.login);
   }
 
-  Future<void> login() async {
+  Future<void> login(GlobalKey<FormState> loginFormKey) async {
     if (!loginFormKey.currentState!.validate()) return;
     _clearError();
     isLoading.value = true;
@@ -86,7 +96,7 @@ class AuthController extends GetxController {
         email: emailController.text,
         password: passwordController.text,
       );
-      Get.offAllNamed(AppRoutes.home);
+      Get.offNamed(AppRoutes.home);
     } catch (e) {
       errorMessage.value = e.toString();
     } finally {
@@ -99,7 +109,7 @@ class AuthController extends GetxController {
     isLoading.value = true;
     try {
       final result = await _authService.signInWithGoogle();
-      if (result != null) Get.offAllNamed(AppRoutes.home);
+      if (result != null) Get.offNamed(AppRoutes.home);
     } catch (e) {
       errorMessage.value = e.toString();
     } finally {
@@ -107,7 +117,7 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> signup() async {
+  Future<void> signup(GlobalKey<FormState> signupFormKey) async {
     if (!signupFormKey.currentState!.validate()) return;
     _clearError();
     isLoading.value = true;
@@ -117,7 +127,7 @@ class AuthController extends GetxController {
         email: emailController.text,
         password: passwordController.text,
       );
-      Get.offAllNamed(AppRoutes.verifyEmail);
+      Get.offNamed(AppRoutes.verifyEmail);
     } catch (e) {
       errorMessage.value = e.toString();
     } finally {
@@ -132,7 +142,7 @@ class AuthController extends GetxController {
       if (verified) {
         _verifyTimer?.cancel();
         _countdownTimer?.cancel();
-        Get.offAllNamed(AppRoutes.home);
+        Get.offNamed(AppRoutes.home);
       }
     });
   }
@@ -210,7 +220,7 @@ class AuthController extends GetxController {
   void _clearError() => errorMessage.value = '';
   void togglePasswordVisibility() => isPasswordVisible.toggle();
   void toggleConfirmVisibility() => isConfirmVisible.toggle();
-  void goToLogin() => Get.offAllNamed(AppRoutes.login);
+  void goToLogin() => Get.offNamed(AppRoutes.login);
   void goToSignup() => Get.toNamed(AppRoutes.signup);
   void goToForgotPassword() => Get.toNamed(AppRoutes.forgotPassword);
 }

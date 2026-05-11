@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../config/app_theme.dart';
+import '../../../config/app_colour.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_input.dart';
 import '../../../core/widgets/error_banner.dart';
 import '../../../core/widgets/social_btn.dart';
 import '../controllers/auth_cont.dart';
 
-class SignupView extends GetView<AuthController> {
+class SignupView extends StatefulWidget {
   const SignupView({super.key});
+
+  @override
+  State<SignupView> createState() => _SignupViewState();
+}
+
+class _SignupViewState extends State<SignupView> {
+  final signupFormKey = GlobalKey<FormState>();
+
+  AuthController get _ctrl => Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +33,7 @@ class SignupView extends GetView<AuthController> {
               const SizedBox(height: 20),
 
               GestureDetector(
-                onTap: Get.back,
+                onTap: () => Get.back(),
                 child: Container(
                   width: 40,
                   height: 40,
@@ -54,7 +63,7 @@ class SignupView extends GetView<AuthController> {
               const SizedBox(height: 6),
 
               Text(
-                'Join FreshTrack — it\'s completely free',
+                "Join FreshTrack — it's completely free",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -63,16 +72,16 @@ class SignupView extends GetView<AuthController> {
               const SizedBox(height: 28),
 
               Form(
-                key: controller.signupFormKey,
+                key: signupFormKey,
                 child: Column(
                   children: [
                     AppTextField(
                       label: 'Full Name',
                       hint: 'Rahul Sharma',
-                      controller: controller.nameController,
+                      controller: _ctrl.nameController,
                       keyboardType: TextInputType.name,
                       prefixIcon: Icons.person_outline,
-                      validator: controller.validateName,
+                      validator: _ctrl.validateName,
                       textInputAction: TextInputAction.next,
                     ),
 
@@ -81,10 +90,10 @@ class SignupView extends GetView<AuthController> {
                     AppTextField(
                       label: 'Email address',
                       hint: 'you@gmail.com',
-                      controller: controller.emailController,
+                      controller: _ctrl.emailController,
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: Icons.email_outlined,
-                      validator: controller.validateEmail,
+                      validator: _ctrl.validateEmail,
                       textInputAction: TextInputAction.next,
                     ),
 
@@ -94,20 +103,20 @@ class SignupView extends GetView<AuthController> {
                       () => AppTextField(
                         label: 'Password',
                         hint: '••••••••••',
-                        controller: controller.passwordController,
-                        obscureText: !controller.isPasswordVisible.value,
+                        controller: _ctrl.passwordController,
+                        obscureText: !_ctrl.isPasswordVisible.value,
                         prefixIcon: Icons.lock_outline,
-                        validator: controller.validatePassword,
+                        validator: _ctrl.validatePassword,
                         textInputAction: TextInputAction.next,
                         suffixIcon: IconButton(
                           icon: Icon(
-                            controller.isPasswordVisible.value
+                            _ctrl.isPasswordVisible.value
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
                             color: AppColors.textSecondary,
                             size: 20,
                           ),
-                          onPressed: controller.togglePasswordVisibility,
+                          onPressed: _ctrl.togglePasswordVisibility,
                         ),
                       ),
                     ),
@@ -118,21 +127,22 @@ class SignupView extends GetView<AuthController> {
                       () => AppTextField(
                         label: 'Confirm Password',
                         hint: '••••••••••',
-                        controller: controller.confirmController,
-                        obscureText: !controller.isConfirmVisible.value,
+                        controller: _ctrl.confirmController,
+                        obscureText: !_ctrl.isConfirmVisible.value,
                         prefixIcon: Icons.lock_outline,
-                        validator: controller.validateConfirmPassword,
+                        validator: _ctrl.validateConfirmPassword,
                         textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => controller.signup(),
+
+                        onFieldSubmitted: (_) => _ctrl.signup(signupFormKey),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            controller.isConfirmVisible.value
+                            _ctrl.isConfirmVisible.value
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
                             color: AppColors.textSecondary,
                             size: 20,
                           ),
-                          onPressed: controller.toggleConfirmVisibility,
+                          onPressed: _ctrl.toggleConfirmVisibility,
                         ),
                       ),
                     ),
@@ -150,8 +160,8 @@ class SignupView extends GetView<AuthController> {
                     const SizedBox(height: 16),
 
                     Obx(
-                      () => controller.errorMessage.value.isNotEmpty
-                          ? ErrorBanner(message: controller.errorMessage.value)
+                      () => _ctrl.errorMessage.value.isNotEmpty
+                          ? ErrorBanner(message: _ctrl.errorMessage.value)
                           : const SizedBox.shrink(),
                     ),
 
@@ -160,8 +170,8 @@ class SignupView extends GetView<AuthController> {
                     Obx(
                       () => AppButton(
                         label: 'Create Account',
-                        isLoading: controller.isLoading.value,
-                        onPressed: controller.signup,
+                        isLoading: _ctrl.isLoading.value,
+                        onPressed: () => _ctrl.signup(signupFormKey),
                       ),
                     ),
 
@@ -191,7 +201,7 @@ class SignupView extends GetView<AuthController> {
                     SocialButton(
                       label: 'Sign up with Google',
                       type: SocialType.google,
-                      onPressed: controller.loginWithGoogle,
+                      onPressed: _ctrl.loginWithGoogle,
                     ),
 
                     const SizedBox(height: 10),
@@ -213,7 +223,7 @@ class SignupView extends GetView<AuthController> {
                               ?.copyWith(color: AppColors.textSecondary),
                         ),
                         GestureDetector(
-                          onTap: controller.goToLogin,
+                          onTap: _ctrl.goToLogin,
                           child: Text(
                             'Sign in',
                             style: Theme.of(context).textTheme.bodySmall
@@ -237,4 +247,3 @@ class SignupView extends GetView<AuthController> {
     );
   }
 }
-
