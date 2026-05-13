@@ -182,7 +182,7 @@ class _BottomCard extends StatelessWidget {
             child: SmoothPageIndicator(
               controller: pageController,
               count: pages.length,
-              effect: ExpandingDotsEffect(
+              effect: const ExpandingDotsEffect(
                 activeDotColor: AppColors.primary,
                 dotColor: AppColors.cardBorder,
                 dotHeight: 4,

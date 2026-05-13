@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import '../../../config/app_colour.dart';
+import '../../../config/app_size.dart';
 import '../../../data/models/grocery_model.dart';
 import '../controllers/dashboard_cont.dart';
 import '../controllers/home_controller.dart';
@@ -71,7 +72,7 @@ class DashboardView extends StatelessWidget {
                 child: _StorageGrid(ctrl: ctrl).animate().fadeIn(delay: 400.ms),
               ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              SliverToBoxAdapter(child: SizedBox(height: R.h(100))),
             ],
           ),
         ),
@@ -88,7 +89,7 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: EdgeInsets.fromLTRB(R.w(20), R.h(16), R.w(20), 0),
       child: Row(
         children: [
           Expanded(
@@ -97,21 +98,21 @@ class _TopBar extends StatelessWidget {
               children: [
                 Text(
                   '${ctrl.greetingText()}, ${hCtrl.displayName} 👋',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Outfit',
-                    fontSize: 20,
+                    fontSize: R.fs(20),
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
                     letterSpacing: -0.3,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: R.h(2)),
                 Obx(
                   () => Text(
                     '${ctrl.totalItems} items in your kitchen',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Outfit',
-                      fontSize: 13,
+                      fontSize: R.fs(13),
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -123,27 +124,27 @@ class _TopBar extends StatelessWidget {
           Stack(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: R.w(40),
+                height: R.w(40),
                 decoration: BoxDecoration(
                   color: AppColors.card,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(R.r(12)),
                   border: Border.all(color: AppColors.cardBorder, width: 0.5),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.notifications_outlined,
                   color: AppColors.textPrimary,
-                  size: 20,
+                  size: R.sp(20),
                 ),
               ),
               Obx(
                 () => ctrl.expiringCount > 0
                     ? Positioned(
-                        top: 6,
-                        right: 6,
+                        top: R.h(6),
+                        right: R.w(6),
                         child: Container(
-                          width: 8,
-                          height: 8,
+                          width: R.w(8),
+                          height: R.w(8),
                           decoration: BoxDecoration(
                             color: AppColors.danger,
                             shape: BoxShape.circle,
@@ -158,19 +159,19 @@ class _TopBar extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: R.w(10)),
 
           GestureDetector(
             onTap: () => Get.find<HomeController>().changeTab(3),
             child: Container(
-              width: 40,
-              height: 40,
+              width: R.w(40),
+              height: R.w(40),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: AppColors.primaryGradient,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     blurRadius: 8,
                   ),
                 ],
@@ -178,9 +179,9 @@ class _TopBar extends StatelessWidget {
               child: Center(
                 child: Text(
                   hCtrl.avatarLetter,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Outfit',
-                    fontSize: 16,
+                    fontSize: R.fs(16),
                     fontWeight: FontWeight.w700,
                     color: AppColors.white,
                   ),
@@ -198,47 +199,52 @@ class _AlertBanner extends StatelessWidget {
   final int count;
   const _AlertBanner({required this.count});
 
+  static const _textColor = Color(0xFFFF8080);
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 14, 20, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.danger.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppColors.danger.withOpacity(0.25),
-          width: 0.8,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.danger,
-            ),
+    return GestureDetector(
+      onTap: () => HapticFeedback.selectionClick(),
+      child: Container(
+        margin: EdgeInsets.fromLTRB(R.w(20), R.h(14), R.w(20), 0),
+        padding: EdgeInsets.symmetric(horizontal: R.w(14), vertical: R.h(12)),
+        decoration: BoxDecoration(
+          color: AppColors.danger.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(R.r(14)),
+          border: Border.all(
+            color: AppColors.danger.withValues(alpha: 0.25),
+            width: 0.8,
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              '$count item${count > 1 ? 's' : ''} expiring soon — check recipes!',
-              style: const TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 13,
-                color: Color(0xFFFF8080),
-                fontWeight: FontWeight.w500,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: R.w(8),
+              height: R.w(8),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.danger,
               ),
             ),
-          ),
-          const Icon(
-            Icons.arrow_forward_ios_rounded,
-            size: 12,
-            color: Color(0xFFFF8080),
-          ),
-        ],
+            SizedBox(width: R.w(10)),
+            Expanded(
+              child: Text(
+                '$count item${count > 1 ? 's' : ''} expiring soon — check recipes!',
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: R.fs(13),
+                  color: _textColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: R.sp(12),
+              color: _textColor,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -251,7 +257,7 @@ class _StatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: EdgeInsets.fromLTRB(R.w(20), R.h(16), R.w(20), 0),
       child: Obx(
         () => Row(
           children: [
@@ -260,19 +266,19 @@ class _StatsRow extends StatelessWidget {
               label: 'Fresh',
               color: AppColors.success,
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: R.w(10)),
             _StatCard(
               value: '${ctrl.expiringCount}',
               label: 'Expiring',
               color: AppColors.warning,
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: R.w(10)),
             _StatCard(
               value: '${ctrl.expiredCount}',
               label: 'Expired',
               color: AppColors.danger,
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: R.w(10)),
             _StatCard(
               value: '${ctrl.totalItems}',
               label: 'Total',
@@ -298,11 +304,11 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: EdgeInsets.symmetric(vertical: R.h(12)),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withOpacity(0.2), width: 0.8),
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(R.r(14)),
+          border: Border.all(color: color.withValues(alpha: 0.2), width: 0.8),
         ),
         child: Column(
           children: [
@@ -310,17 +316,17 @@ class _StatCard extends StatelessWidget {
               value,
               style: TextStyle(
                 fontFamily: 'Outfit',
-                fontSize: 22,
+                fontSize: R.fs(22),
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: R.h(2)),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Outfit',
-                fontSize: 10,
+                fontSize: R.fs(10),
                 color: AppColors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
@@ -342,23 +348,23 @@ class _UseFirstSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+          padding: EdgeInsets.fromLTRB(R.w(20), R.h(20), R.w(20), R.h(12)),
           child: Row(
             children: [
               Container(
-                width: 6,
-                height: 6,
+                width: R.w(6),
+                height: R.w(6),
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.danger,
                 ),
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: R.w(8)),
+              Text(
                 'Use These First',
                 style: TextStyle(
                   fontFamily: 'Outfit',
-                  fontSize: 16,
+                  fontSize: R.fs(16),
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
@@ -370,9 +376,9 @@ class _UseFirstSection extends StatelessWidget {
           () => ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: R.w(20)),
             itemCount: ctrl.useFirstItems.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, __) => SizedBox(height: R.h(8)),
             itemBuilder: (_, i) {
               final item = ctrl.useFirstItems[i];
               return _UseFirstCard(item: item, rank: i + 1);
@@ -403,59 +409,62 @@ class _UseFirstCard extends StatelessWidget {
 
     final statusColor = isExp
         ? AppColors.danger
-        : days != null && days <= 1
+        : (days != null && days <= 1)
         ? AppColors.danger
         : AppColors.warning;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(R.r(12)),
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(R.r(14)),
         border: Border.all(color: AppColors.cardBorder, width: 0.5),
       ),
       child: Row(
         children: [
           Container(
-            width: 24,
-            height: 24,
+            width: R.w(24),
+            height: R.w(24),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: statusColor.withOpacity(0.15),
+              color: statusColor.withValues(alpha: 0.15),
             ),
             child: Center(
               child: Text(
                 '$rank',
                 style: TextStyle(
                   fontFamily: 'Outfit',
-                  fontSize: 11,
+                  fontSize: R.fs(11),
                   fontWeight: FontWeight.w700,
                   color: statusColor,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          Text(item.emoji, style: const TextStyle(fontSize: 28)),
-          const SizedBox(width: 12),
+          SizedBox(width: R.w(12)),
+          Text(item.emoji, style: TextStyle(fontSize: R.sp(28))),
+          SizedBox(width: R.w(12)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Outfit',
-                    fontSize: 14,
+                    fontSize: R.fs(14),
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
                 Text(
-                  item.storageZone.capitalizeFirst ?? '',
-                  style: const TextStyle(
+                  item.storageZone.isNotEmpty
+                      ? item.storageZone[0].toUpperCase() +
+                            item.storageZone.substring(1)
+                      : '',
+                  style: TextStyle(
                     fontFamily: 'Outfit',
-                    fontSize: 11,
+                    fontSize: R.fs(11),
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -463,16 +472,19 @@ class _UseFirstCard extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(
+              horizontal: R.w(10),
+              vertical: R.h(4),
+            ),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(20),
+              color: statusColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(R.r(20)),
             ),
             child: Text(
               daysStr,
               style: TextStyle(
                 fontFamily: 'Outfit',
-                fontSize: 11,
+                fontSize: R.fs(11),
                 fontWeight: FontWeight.w600,
                 color: statusColor,
               ),
@@ -487,8 +499,8 @@ class _UseFirstCard extends StatelessWidget {
 class _ExpirySectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(20, 22, 20, 12),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(R.w(20), R.h(22), R.w(20), R.h(12)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -496,7 +508,7 @@ class _ExpirySectionHeader extends StatelessWidget {
             'Expiry Tracker',
             style: TextStyle(
               fontFamily: 'Outfit',
-              fontSize: 16,
+              fontSize: R.fs(16),
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
             ),
@@ -505,7 +517,7 @@ class _ExpirySectionHeader extends StatelessWidget {
             'See all',
             style: TextStyle(
               fontFamily: 'Outfit',
-              fontSize: 13,
+              fontSize: R.fs(13),
               color: AppColors.primary,
               fontWeight: FontWeight.w500,
             ),
@@ -525,20 +537,20 @@ class _ExpiryScrollRow extends StatelessWidget {
     final items = ctrl.allItems.take(10).toList();
     if (items.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: R.w(20)),
         child: Container(
-          height: 110,
+          height: R.h(110),
           decoration: BoxDecoration(
             color: AppColors.card,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(R.r(16)),
             border: Border.all(color: AppColors.cardBorder, width: 0.5),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
               'No items yet — tap + to add grocery',
               style: TextStyle(
                 fontFamily: 'Outfit',
-                fontSize: 13,
+                fontSize: R.fs(13),
                 color: AppColors.textSecondary,
               ),
             ),
@@ -547,12 +559,12 @@ class _ExpiryScrollRow extends StatelessWidget {
       );
     }
     return SizedBox(
-      height: 120,
+      height: R.h(120),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: R.w(20)),
         itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, __) => SizedBox(width: R.w(10)),
         itemBuilder: (_, i) => _ExpiryCard(item: items[i]),
       ),
     );
@@ -570,16 +582,16 @@ class _ExpiryCard extends StatelessWidget {
     final isWarn = item.status == 'expiring';
 
     final Color borderColor = isExp
-        ? AppColors.danger.withOpacity(0.4)
+        ? AppColors.danger.withValues(alpha: 0.4)
         : isWarn
-        ? AppColors.warning.withOpacity(0.4)
-        : AppColors.success.withOpacity(0.25);
+        ? AppColors.warning.withValues(alpha: 0.4)
+        : AppColors.success.withValues(alpha: 0.25);
 
     final Color bgColor = isExp
-        ? AppColors.danger.withOpacity(0.06)
+        ? AppColors.danger.withValues(alpha: 0.06)
         : isWarn
-        ? AppColors.warning.withOpacity(0.06)
-        : AppColors.success.withOpacity(0.04);
+        ? AppColors.warning.withValues(alpha: 0.06)
+        : AppColors.success.withValues(alpha: 0.04);
 
     final Color textColor = isExp
         ? AppColors.danger
@@ -595,49 +607,50 @@ class _ExpiryCard extends StatelessWidget {
         ? '1 day'
         : '$days days';
 
-    double fill = 1.0;
-    if (!isExp && days != null) fill = (days / 30.0).clamp(0.0, 1.0);
+    final double fill = isExp
+        ? 0.0
+        : (days != null ? (days / 30.0).clamp(0.0, 1.0) : 1.0);
 
     return Container(
-      width: 110,
-      padding: const EdgeInsets.all(12),
+      width: R.w(110),
+      padding: EdgeInsets.all(R.r(12)),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(R.r(16)),
         border: Border.all(color: borderColor, width: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(item.emoji, style: const TextStyle(fontSize: 26)),
-          const SizedBox(height: 6),
+          Text(item.emoji, style: TextStyle(fontSize: R.sp(26))),
+          SizedBox(height: R.h(6)),
           Text(
             item.name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Outfit',
-              fontSize: 12,
+              fontSize: R.fs(12),
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: R.h(2)),
           Text(
             daysText,
             style: TextStyle(
               fontFamily: 'Outfit',
-              fontSize: 11,
+              fontSize: R.fs(11),
               fontWeight: FontWeight.w500,
               color: textColor,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: R.h(6)),
           ClipRRect(
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(R.r(2)),
             child: LinearProgressIndicator(
               value: fill,
-              minHeight: 3,
+              minHeight: R.h(3),
               backgroundColor: AppColors.cardBorder,
               valueColor: AlwaysStoppedAnimation(textColor),
             ),
@@ -651,13 +664,13 @@ class _ExpiryCard extends StatelessWidget {
 class _StorageSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(20, 22, 20, 12),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(R.w(20), R.h(22), R.w(20), R.h(12)),
       child: Text(
         'Storage Zones',
         style: TextStyle(
           fontFamily: 'Outfit',
-          fontSize: 16,
+          fontSize: R.fs(16),
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
         ),
@@ -698,14 +711,14 @@ class _StorageGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: R.w(20)),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+          crossAxisSpacing: R.w(10),
+          mainAxisSpacing: R.h(10),
           childAspectRatio: 1.45,
         ),
         itemCount: _zones.length,
@@ -736,14 +749,17 @@ class _ZoneCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => HapticFeedback.selectionClick(),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(R.r(14)),
         decoration: BoxDecoration(
           color: zone.bg,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: zone.accent.withOpacity(0.25), width: 0.8),
+          borderRadius: BorderRadius.circular(R.r(18)),
+          border: Border.all(
+            color: zone.accent.withValues(alpha: 0.25),
+            width: 0.8,
+          ),
           boxShadow: [
             BoxShadow(
-              color: zone.accent.withOpacity(0.06),
+              color: zone.accent.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -755,34 +771,34 @@ class _ZoneCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: R.w(36),
+                  height: R.w(36),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: zone.accent.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(R.r(10)),
+                    color: zone.accent.withValues(alpha: 0.15),
                   ),
                   child: Center(
                     child: Text(
                       zone.emoji,
-                      style: const TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: R.sp(18)),
                     ),
                   ),
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 3,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: R.w(7),
+                    vertical: R.h(3),
                   ),
                   decoration: BoxDecoration(
-                    color: zone.accent.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(20),
+                    color: zone.accent.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(R.r(20)),
                   ),
                   child: Text(
                     '$count',
                     style: TextStyle(
                       fontFamily: 'Outfit',
-                      fontSize: 11,
+                      fontSize: R.fs(11),
                       fontWeight: FontWeight.w700,
                       color: zone.accent,
                     ),
@@ -790,37 +806,37 @@ class _ZoneCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: R.h(8)),
             Text(
               zone.label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Outfit',
-                fontSize: 13,
+                fontSize: R.fs(13),
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: R.h(6)),
             if (items.isNotEmpty)
               Wrap(
-                spacing: 4,
-                runSpacing: 4,
+                spacing: R.w(4),
+                runSpacing: R.h(4),
                 children: items
                     .map(
                       (i) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: R.w(6),
+                          vertical: R.h(2),
                         ),
                         decoration: BoxDecoration(
-                          color: zone.accent.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(20),
+                          color: zone.accent.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(R.r(20)),
                         ),
                         child: Text(
                           '${i.emoji} ${i.name}',
                           style: TextStyle(
                             fontFamily: 'Outfit',
-                            fontSize: 10,
+                            fontSize: R.fs(10),
                             fontWeight: FontWeight.w500,
                             color: zone.accent,
                           ),
@@ -834,8 +850,8 @@ class _ZoneCard extends StatelessWidget {
                 'Empty',
                 style: TextStyle(
                   fontFamily: 'Outfit',
-                  fontSize: 11,
-                  color: zone.accent.withOpacity(0.5),
+                  fontSize: R.fs(11),
+                  color: zone.accent.withValues(alpha: 0.5),
                 ),
               ),
           ],
@@ -855,12 +871,12 @@ class _ShimmerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 120,
+      height: R.h(120),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: R.w(20)),
         itemCount: 4,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, __) => SizedBox(width: R.w(10)),
         itemBuilder: (_, __) => _ShimmerCard(),
       ),
     );
@@ -898,11 +914,11 @@ class _ShimmerCardState extends State<_ShimmerCard>
     return AnimatedBuilder(
       animation: _anim,
       builder: (_, __) => Container(
-        width: 110,
-        height: 120,
+        width: R.w(110),
+        height: R.h(120),
         decoration: BoxDecoration(
           color: Color.lerp(AppColors.card, AppColors.surface, _anim.value),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(R.r(16)),
           border: Border.all(color: AppColors.cardBorder, width: 0.5),
         ),
       ),

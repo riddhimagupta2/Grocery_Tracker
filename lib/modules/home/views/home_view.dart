@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:grocery_track/modules/kitchen/views/kitchen_views.dart';
 import '../../../config/app_colour.dart';
-import '../../../config/app_routes.dart';
+import '../../../config/app_size.dart';
 import '../../profile/view/profile_view.dart';
+import '../../scan/view/scan_view.dart';
 import '../controllers/home_controller.dart';
 import 'dashboard.dart';
 
@@ -21,7 +23,7 @@ class HomeView extends StatelessWidget {
           index: ctrl.currentIndex.value,
           children: const [
             DashboardView(),
-            _KitchenPlaceholder(),
+            KitchenView(),
             _RecipesPlaceholder(),
             ProfileView(),
           ],
@@ -153,45 +155,89 @@ class _NavItem extends StatelessWidget {
 }
 
 class _ScanFAB extends StatelessWidget {
+  const _ScanFAB();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        Get.toNamed(AppRoutes.scan);
+        _openScanSheet(context);
       },
       child: Container(
-        width: 56,
-        height: 56,
+        width: R.w(56),
+        height: R.w(56),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: AppColors.primaryGradient,
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.45),
+              color: AppColors.primary.withValues(alpha: 0.45),
               blurRadius: 20,
               offset: const Offset(0, 6),
             ),
           ],
         ),
-        child: const Icon(
+        child: Icon(
           Icons.qr_code_scanner_rounded,
           color: AppColors.white,
-          size: 26,
+          size: R.sp(26),
         ),
       ),
     );
   }
+
+  void _openScanSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      useSafeArea: true,
+      builder: (_) => const _ScanSheet(),
+    );
+  }
 }
 
-class _KitchenPlaceholder extends StatelessWidget {
-  const _KitchenPlaceholder();
+class _ScanSheet extends StatelessWidget {
+  const _ScanSheet();
+
   @override
-  Widget build(BuildContext context) => const _ComingSoon(
-    emoji: '🏪',
-    title: 'Kitchen',
-    subtitle: 'Storage zones coming soon',
-  );
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.95,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      snap: true,
+      snapSizes: const [0.5, 0.95],
+      builder: (_, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.bgDark,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(R.r(24))),
+            border: Border.all(color: AppColors.cardBorder, width: 0.5),
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: R.h(12), bottom: R.h(4)),
+                child: Container(
+                  width: R.w(40),
+                  height: R.h(4),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBorder,
+                    borderRadius: BorderRadius.circular(R.r(2)),
+                  ),
+                ),
+              ),
+
+              const Expanded(child: ScanView()),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _RecipesPlaceholder extends StatelessWidget {
