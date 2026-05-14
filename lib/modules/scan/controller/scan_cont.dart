@@ -9,23 +9,21 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-
-final _kGeminiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
-const _kGeminiUrl =
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
-
-
 class ScanController extends GetxController {
   final _db = FirebaseFirestore.instance;
   final _uid = FirebaseAuth.instance.currentUser?.uid ?? '';
   final _picker = ImagePicker();
+
+  String get _kGeminiKey => dotenv.env['GEMINI_API_KEY']?.trim() ?? '';
+  static const _kGeminiUrl =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key';
+
 
   late TextEditingController nameCtrl;
   late TextEditingController brandCtrl;
   late TextEditingController quantityCtrl;
   late TextEditingController unitCtrl;
 
-  
   final isSaving = false.obs;
   final errorMsg = ''.obs;
   final selectedZone = 'pantry'.obs;
@@ -35,12 +33,10 @@ class ScanController extends GetxController {
   final barcodeResult = ''.obs;
   final isCameraMode = true.obs;
 
-  
   final isAiScanning = false.obs;
   final aiResult = Rx<Map<String, String>?>(null);
   final capturedImagePath = ''.obs;
 
-  
   static const zones = [
     {'key': 'fridge', 'label': 'Refrigerator', 'emoji': '❄️'},
     {'key': 'pantry', 'label': 'Pantry', 'emoji': '🗄️'},
@@ -51,25 +47,87 @@ class ScanController extends GetxController {
   ];
 
   static const emojiOptions = [
-    '📦', '🍎', '🥦', '🥛', '🧀', '🍌', '🧅', '🥕', '🍚', '🫘',
-    '🥜', '🍳', '🧈', '🥚', '🍅', '🫑', '🧄', '🌶️', '🍋', '🥝',
-    '🫙', '🍯', '🧂', '🌾', '🍝', '🥫', '🍞', '🧃', '🥤', '🍪',
+    '📦',
+    '🍎',
+    '🥦',
+    '🥛',
+    '🧀',
+    '🍌',
+    '🧅',
+    '🥕',
+    '🍚',
+    '🫘',
+    '🥜',
+    '🍳',
+    '🧈',
+    '🥚',
+    '🍅',
+    '🫑',
+    '🧄',
+    '🌶️',
+    '🍋',
+    '🥝',
+    '🫙',
+    '🍯',
+    '🧂',
+    '🌾',
+    '🍝',
+    '🥫',
+    '🍞',
+    '🧃',
+    '🥤',
+    '🍪',
   ];
 
-  
   static const _categoryEmojiMap = {
-    'apple': '🍎', 'banana': '🍌', 'milk': '🥛', 'cheese': '🧀',
-    'egg': '🥚', 'butter': '🧈', 'carrot': '🥕', 'onion': '🧅',
-    'garlic': '🧄', 'tomato': '🍅', 'bread': '🍞', 'rice': '🍚',
-    'flour': '🌾', 'oil': '🫙', 'honey': '🍯', 'salt': '🧂',
-    'pasta': '🍝', 'beans': '🫘', 'juice': '🧃', 'water': '🥤',
-    'yogurt': '🥛', 'chicken': '🍳', 'fish': '🐟', 'lemon': '🍋',
-    'kiwi': '🥝', 'pepper': '🌶️', 'chilli': '🌶️', 'corn': '🌽',
-    'peas': '🫛', 'potato': '🥔', 'spinach': '🥬', 'broccoli': '🥦',
-    'peanut': '🥜', 'nut': '🥜', 'biscuit': '🍪', 'cookie': '🍪',
-    'sauce': '🥫', 'can': '🥫', 'tin': '🥫', 'drink': '🥤',
-    'tea': '🍵', 'coffee': '☕', 'sugar': '🍬', 'dal': '🫘',
-    'paneer': '🧀', 'ghee': '🧈', 'masala': '🌶️', 'atta': '🌾',
+    'apple': '🍎',
+    'banana': '🍌',
+    'milk': '🥛',
+    'cheese': '🧀',
+    'egg': '🥚',
+    'butter': '🧈',
+    'carrot': '🥕',
+    'onion': '🧅',
+    'garlic': '🧄',
+    'tomato': '🍅',
+    'bread': '🍞',
+    'rice': '🍚',
+    'flour': '🌾',
+    'oil': '🫙',
+    'honey': '🍯',
+    'salt': '🧂',
+    'pasta': '🍝',
+    'beans': '🫘',
+    'juice': '🧃',
+    'water': '🥤',
+    'yogurt': '🥛',
+    'chicken': '🍳',
+    'fish': '🐟',
+    'lemon': '🍋',
+    'kiwi': '🥝',
+    'pepper': '🌶️',
+    'chilli': '🌶️',
+    'corn': '🌽',
+    'peas': '🫛',
+    'potato': '🥔',
+    'spinach': '🥬',
+    'broccoli': '🥦',
+    'peanut': '🥜',
+    'nut': '🥜',
+    'biscuit': '🍪',
+    'cookie': '🍪',
+    'sauce': '🥫',
+    'can': '🥫',
+    'tin': '🥫',
+    'drink': '🥤',
+    'tea': '🍵',
+    'coffee': '☕',
+    'sugar': '🍬',
+    'dal': '🫘',
+    'paneer': '🧀',
+    'ghee': '🧈',
+    'masala': '🌶️',
+    'atta': '🌾',
   };
 
   @override
@@ -90,7 +148,6 @@ class ScanController extends GetxController {
     super.onClose();
   }
 
-  
   void switchToManual() => isCameraMode.value = false;
   void switchToCamera() => isCameraMode.value = true;
 
@@ -99,7 +156,6 @@ class ScanController extends GetxController {
     capturedImagePath.value = '';
   }
 
-  
   void onBarcodeDetected(String code) {
     barcodeResult.value = code;
     isCameraMode.value = false;
@@ -112,9 +168,6 @@ class ScanController extends GetxController {
     );
   }
 
-  
-
-  
   Future<void> captureAndAnalyse() async {
     final file = await _picker.pickImage(
       source: ImageSource.camera,
@@ -125,7 +178,6 @@ class ScanController extends GetxController {
     await _analyseImage(File(file.path));
   }
 
-  
   Future<void> pickFromGallery() async {
     final file = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -136,7 +188,6 @@ class ScanController extends GetxController {
     await _analyseImage(File(file.path));
   }
 
-  
   Future<void> _analyseImage(File imageFile) async {
     isAiScanning.value = true;
     errorMsg.value = '';
@@ -144,13 +195,11 @@ class ScanController extends GetxController {
     try {
       capturedImagePath.value = imageFile.path;
 
-      
       final bytes = await imageFile.readAsBytes();
       final b64 = base64Encode(bytes);
       final ext = imageFile.path.split('.').last.toLowerCase();
       final mimeType = ext == 'png' ? 'image/png' : 'image/jpeg';
 
-      
       const prompt = '''
 You are a grocery item recognition AI. Analyse this image of a grocery item or its packaging.
  
@@ -174,7 +223,6 @@ Rules:
 - Return ONLY the JSON object. No prose, no backticks, no markdown.
 ''';
 
-      
       final response = await http.post(
         Uri.parse('$_kGeminiUrl?key=$_kGeminiKey'),
         headers: {'Content-Type': 'application/json'},
@@ -182,30 +230,28 @@ Rules:
           'contents': [
             {
               'parts': [
-                {
-                  'inline_data': {
-                    'mime_type': mimeType,
-                    'data': b64,
-                  },
-                },
                 {'text': prompt},
+                {
+                  'inlineData': {'mimeType': mimeType, 'data': b64},
+                },
               ],
             },
           ],
-          'generationConfig': {
-            'temperature': 0.1,
-            'maxOutputTokens': 512,
-          },
+          'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 512},
         }),
       );
 
       if (response.statusCode != 200) {
-        throw Exception('Gemini API error ${response.statusCode}: ${response.body}');
+        throw Exception(
+          'Gemini API error ${response.statusCode}: ${response.body}',
+        );
       }
 
-      
       final decoded = jsonDecode(response.body);
-      final rawText = (decoded['candidates']?[0]?['content']?['parts']?[0]?['text'] as String?) ?? '';
+      final rawText =
+          (decoded['candidates']?[0]?['content']?['parts']?[0]?['text']
+              as String?) ??
+          '';
       final cleaned = rawText
           .replaceAll('```json', '')
           .replaceAll('```', '')
@@ -227,12 +273,12 @@ Rules:
 
       aiResult.value = result;
 
-      
       isCameraMode.value = false;
       await Future.delayed(const Duration(milliseconds: 300));
       _showAiResultSheet();
     } catch (e) {
-      errorMsg.value = 'AI scan failed: ${e.toString().split(':').first}. Try again or enter manually.';
+      errorMsg.value =
+          'AI scan failed: ${e.toString().split(':').first}. Try again or enter manually.';
       Get.snackbar(
         '⚠️ Scan failed',
         'Could not analyse image. Please try again.',
@@ -247,7 +293,6 @@ Rules:
     }
   }
 
-  
   final aiSheetPending = false.obs;
 
   void _showAiResultSheet() {
@@ -258,22 +303,17 @@ Rules:
 
   void aiSheetShown() => aiSheetPending.value = false;
 
-  
   void applyAiResult() {
     final r = aiResult.value;
     if (r == null) return;
 
-    
     if (r['name']?.isNotEmpty == true) nameCtrl.text = r['name']!;
 
-    
     if (r['brand']?.isNotEmpty == true) brandCtrl.text = r['brand']!;
 
-    
     if (r['quantity']?.isNotEmpty == true) quantityCtrl.text = r['quantity']!;
     if (r['unit']?.isNotEmpty == true) unitCtrl.text = r['unit']!;
 
-    
     String emoji = r['emoji'] ?? '📦';
     if (emoji.isEmpty || emoji == '📦') {
       final nameLower = (r['name'] ?? '').toLowerCase();
@@ -286,19 +326,16 @@ Rules:
     }
     selectedEmoji.value = emoji.isNotEmpty ? emoji : '📦';
 
-    
     final zone = r['storageZone'] ?? 'pantry';
     final validZones = zones.map((z) => z['key']!).toSet();
     selectedZone.value = validZones.contains(zone) ? zone : 'pantry';
 
-    
     final expStr = r['expiryDate'] ?? '';
     if (expStr.isNotEmpty) {
       final parsed = _parseExpiryString(expStr);
       if (parsed != null) expiryDate.value = parsed;
     }
 
-    
     Get.snackbar(
       '✅ AI filled details',
       'Review and save to kitchen.',
@@ -307,7 +344,6 @@ Rules:
     );
   }
 
-  
   DateTime? _parseExpiryString(String s) {
     final formats = [
       'dd MMM yyyy',
@@ -324,12 +360,14 @@ Rules:
         return DateFormat(fmt).parse(s);
       } catch (_) {}
     }
-    
+
     final yearMatch = RegExp(r'(\d{4})').firstMatch(s);
     final monthMatch = RegExp(r'\b(\d{1,2})\b').firstMatch(s);
     if (yearMatch != null) {
       final year = int.tryParse(yearMatch.group(1)!);
-      final month = monthMatch != null ? int.tryParse(monthMatch.group(1)!) : 12;
+      final month = monthMatch != null
+          ? int.tryParse(monthMatch.group(1)!)
+          : 12;
       if (year != null && year > 2020) {
         return DateTime(year, (month ?? 12).clamp(1, 12));
       }
@@ -337,11 +375,11 @@ Rules:
     return null;
   }
 
-  
   Future<void> pickExpiryDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: expiryDate.value ?? DateTime.now().add(const Duration(days: 30)),
+      initialDate:
+          expiryDate.value ?? DateTime.now().add(const Duration(days: 30)),
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 3650)),
       builder: (ctx, child) => Theme(
@@ -357,7 +395,6 @@ Rules:
     if (picked != null) expiryDate.value = picked;
   }
 
-  
   Future<void> saveItem(GlobalKey<FormState> formKey) async {
     if (!formKey.currentState!.validate()) return;
     if (_uid.isEmpty) {
@@ -370,15 +407,13 @@ Rules:
       final days = expiryDate.value?.difference(DateTime.now()).inDays;
       String status = 'fresh';
       if (days != null) {
-        if (days < 0) status = 'expired';
-        else if (days <= 3) status = 'expiring';
+        if (days < 0)
+          status = 'expired';
+        else if (days <= 3)
+          status = 'expiring';
       }
 
-      await _db
-          .collection('users')
-          .doc(_uid)
-          .collection('grocery_items')
-          .add({
+      await _db.collection('users').doc(_uid).collection('grocery_items').add({
         'name': nameCtrl.text.trim(),
         'brand': brandCtrl.text.trim(),
         'emoji': selectedEmoji.value,
@@ -415,7 +450,6 @@ Rules:
     }
   }
 
-  
   void _resetForm() {
     nameCtrl.clear();
     brandCtrl.clear();
@@ -440,15 +474,13 @@ Rules:
     return DateFormat('dd MMM yyyy').format(d);
   }
 
-  String get zoneLabelSelected => zones
-      .firstWhere(
-        (z) => z['key'] == selectedZone.value,
+  String get zoneLabelSelected => zones.firstWhere(
+    (z) => z['key'] == selectedZone.value,
     orElse: () => {'label': 'Pantry'},
   )['label']!;
 
-  String get zoneEmojiSelected => zones
-      .firstWhere(
-        (z) => z['key'] == selectedZone.value,
+  String get zoneEmojiSelected => zones.firstWhere(
+    (z) => z['key'] == selectedZone.value,
     orElse: () => {'emoji': '🗄️'},
   )['emoji']!;
 }

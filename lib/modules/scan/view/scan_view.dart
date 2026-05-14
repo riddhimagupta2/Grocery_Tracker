@@ -801,7 +801,7 @@ class _ManualForm extends StatelessWidget {
 
             _SectionLabel('Item Emoji'),
             SizedBox(height: R.h(8)),
-            Obx(() => _EmojiPicker(ctrl: ctrl)),
+             _EmojiPicker(ctrl: ctrl),
             SizedBox(height: R.h(20)),
 
             _SectionLabel('Item Name *'),
@@ -878,7 +878,7 @@ class _ManualForm extends StatelessWidget {
 
             _SectionLabel('Storage Zone'),
             SizedBox(height: R.h(8)),
-            Obx(() => _ZonePicker(ctrl: ctrl)),
+             _ZonePicker(ctrl: ctrl),
             SizedBox(height: R.h(20)),
 
             _SectionLabel('Expiry Date'),
@@ -1203,43 +1203,44 @@ class _EmojiPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: R.h(50),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: ScanController.emojiOptions.length,
-        separatorBuilder: (_, __) => SizedBox(width: R.w(8)),
-        itemBuilder: (_, i) {
-          final e = ScanController.emojiOptions[i];
-          return Obx(() {
-            final selected = ctrl.selectedEmoji.value == e;
+    return Obx(() {
+      final selected = ctrl.selectedEmoji.value;
+      return SizedBox(
+        height: R.h(50),
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: ScanController.emojiOptions.length,
+          separatorBuilder: (_, __) => SizedBox(width: R.w(8)),
+          itemBuilder: (_, i) {
+            final e = ScanController.emojiOptions[i];
+            final isSelected = selected == e;
+
             return GestureDetector(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                ctrl.selectedEmoji.value = e;
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: R.w(46),
-                height: R.w(46),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? AppColors.primary.withValues(alpha: 0.15)
-                      : AppColors.card,
-                  borderRadius: BorderRadius.circular(R.r(12)),
-                  border: Border.all(
-                    color: selected ? AppColors.primary : AppColors.cardBorder,
-                    width: selected ? 1.5 : 0.5,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  ctrl.selectedEmoji.value = e;
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: R.w(46),
+                  height: R.w(46),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primary.withValues(alpha: 0.15)
+                        : AppColors.card,
+                    borderRadius: BorderRadius.circular(R.r(12)),
+                    border: Border.all(
+                      color: isSelected ? AppColors.primary : AppColors.cardBorder,
+                      width: isSelected ? 1.5 : 0.5,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(e, style: TextStyle(fontSize: R.sp(22))),
                   ),
                 ),
-                child: Center(
-                  child: Text(e, style: TextStyle(fontSize: R.sp(22))),
-                ),
-              ),
-            );
-          });
-        },
-      ),
+              );
+            }),
+        );}
     );
   }
 }
@@ -1250,63 +1251,66 @@ class _ZonePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: R.h(80),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: ScanController.zones.length,
-        separatorBuilder: (_, __) => SizedBox(width: R.w(10)),
-        itemBuilder: (_, i) {
-          final z = ScanController.zones[i];
-          return Obx(() {
-            final selected = ctrl.selectedZone.value == z['key'];
-            return GestureDetector(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                ctrl.selectedZone.value = z['key']!;
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: R.w(90),
-                height: R.h(80),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? AppColors.primary.withValues(alpha: 0.1)
-                      : AppColors.card,
-                  borderRadius: BorderRadius.circular(R.r(14)),
-                  border: Border.all(
-                    color: selected ? AppColors.primary : AppColors.cardBorder,
-                    width: selected ? 1.5 : 0.5,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(z['emoji']!, style: TextStyle(fontSize: R.sp(24))),
-                    SizedBox(height: R.h(4)),
-                    Text(
-                      z['label']!,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontSize: R.fs(10),
-                        fontWeight: selected
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: selected
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
-                        height: 1.2,
+    return Obx(() {
+      final selected = ctrl.selectedZone.value;
+      return SizedBox(
+          height: R.h(80),
+          child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: ScanController.zones.length,
+              separatorBuilder: (_, __) => SizedBox(width: R.w(10)),
+              itemBuilder: (_, i) {
+                final z = ScanController.zones[i];
+                final isSelected = selected == z['key'];
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    ctrl.selectedZone.value = z['key']!;
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: R.w(90),
+                    height: R.h(80),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.primary.withValues(alpha: 0.1)
+                          : AppColors.card,
+                      borderRadius: BorderRadius.circular(R.r(14)),
+                      border: Border.all(
+                        color: isSelected ? AppColors.primary : AppColors
+                            .cardBorder,
+                        width: isSelected ? 1.5 : 0.5,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            );
-          });
-        },
-      ),
-    );
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(z['emoji']!, style: TextStyle(fontSize: R.sp(24))),
+                        SizedBox(height: R.h(4)),
+                        Text(
+                          z['label']!,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          style: TextStyle(
+                            fontFamily: 'Outfit',
+                            fontSize: R.fs(10),
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                            height: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              })
+
+      )
+      ;
+    });
   }
 }
