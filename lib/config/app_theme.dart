@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 import 'app_colour.dart';
 
 class AppTheme {
-  AppTheme._();
-
   static ThemeData get dark => ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,

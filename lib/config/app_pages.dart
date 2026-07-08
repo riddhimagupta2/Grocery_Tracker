@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:grocery_track/modules/home/views/dashboard.dart';
 import 'package:grocery_track/modules/home/views/home_view.dart';
 import 'package:grocery_track/modules/kitchen/views/kitchen_views.dart';
 import 'package:grocery_track/modules/profile/view/profile_view.dart';
@@ -28,27 +27,27 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.login,
-      page: () =>  LoginView(),
+      page: () => LoginView(),
       binding: AuthBinding(),
       transition: Transition.rightToLeftWithFade,
       transitionDuration: const Duration(milliseconds: 350),
     ),
     GetPage(
       name: AppRoutes.signup,
-      page: () =>  SignupView(),
+      page: () => SignupView(),
       binding: AuthBinding(),
       transition: Transition.rightToLeftWithFade,
       transitionDuration: const Duration(milliseconds: 350),
     ),
 
     GetPage(
-      name:    AppRoutes.forgotPassword,
-      page:    () => const ForgotPasswordView(),
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordView(),
       binding: AuthBinding(),
     ),
     GetPage(
-      name:    AppRoutes.verifyEmail,
-      page:    () => const VerifyEmailView(),
+      name: AppRoutes.verifyEmail,
+      page: () => const VerifyEmailView(),
       binding: AuthBinding(),
     ),
     GetPage(
@@ -57,15 +56,17 @@ class AppPages {
       binding: HomeBinding(),
     ),
 
-   GetPage(
+    GetPage(
       name: AppRoutes.kitchen,
       page: () => const KitchenView(),
       binding: HomeBinding(),
-    ),GetPage(
+    ),
+    GetPage(
       name: AppRoutes.scan,
       page: () => const ScanView(),
       binding: HomeBinding(),
-    ),GetPage(
+    ),
+    GetPage(
       name: AppRoutes.profile,
       page: () => const ProfileView(),
       binding: HomeBinding(),

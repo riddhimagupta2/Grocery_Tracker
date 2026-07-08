@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  AppColors._();
 
   static const primary = Color(0xFF1DB868);
   static const primaryDark = Color(0xFF0FA050);
@@ -52,7 +51,6 @@ class AppColors {
   static const Color zonePillText = Color(0xFF5DD880);
   static const Color zoneCountBg = Color(0x332DB85A);
   static const Color zoneCountText = Color(0xFF3DBA60);
-
 
   static const primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
