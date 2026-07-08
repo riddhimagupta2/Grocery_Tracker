@@ -11,8 +11,9 @@ class FirebaseAuthService extends GetxService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   late final UserRepository _userRepo;
 
-  final Rx<User?> firebaseUser    = Rx<User?>(null);
-  final Rx<UserModel?> appUser    = Rx<UserModel?>(null);
+  final Rx<User?> firebaseUser
+  = Rx<User?>(null);
+  final Rx<UserModel?> appUser = Rx<UserModel?>(null);
 
   @override
   void onInit() {
@@ -35,10 +36,10 @@ class FirebaseAuthService extends GetxService {
     }
   }
 
-  User?      get currentUser    => _auth.currentUser;
+  User? get currentUser => _auth.currentUser;
   UserModel? get currentAppUser => appUser.value;
-  bool       get isLoggedIn     => currentUser != null;
-  bool       get isEmailVerified => currentUser?.emailVerified ?? false;
+  bool get isLoggedIn => currentUser != null;
+  bool get isEmailVerified => currentUser?.emailVerified ?? false;
 
   Future<UserCredential?> signInWithEmail({
     required String email,
@@ -68,11 +69,16 @@ class FirebaseAuthService extends GetxService {
       await cred.user?.updateDisplayName(name.trim());
       await cred.user?.sendEmailVerification();
       final now = DateTime.now();
-      await _userRepo.createUser(UserModel(
-        uid: cred.user!.uid, name: name.trim(),
-        email: email.trim(), photoUrl: cred.user?.photoURL,
-        createdAt: now, updatedAt: now,
-      ));
+      await _userRepo.createUser(
+        UserModel(
+          uid: cred.user!.uid,
+          name: name.trim(),
+          email: email.trim(),
+          photoUrl: cred.user?.photoURL,
+          createdAt: now,
+          updatedAt: now,
+        ),
+      );
       return cred;
     } on FirebaseAuthException catch (e) {
       throw _mapFirebaseError(e);
@@ -104,8 +110,11 @@ class FirebaseAuthService extends GetxService {
   }
 
   Future<void> resendVerificationEmail() async {
-    try { await currentUser?.sendEmailVerification(); }
-    on FirebaseAuthException catch (e) { throw _mapFirebaseError(e); }
+    try {
+      await currentUser?.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      throw _mapFirebaseError(e);
+    }
   }
 
   Future<bool> reloadAndCheckVerified() async {
