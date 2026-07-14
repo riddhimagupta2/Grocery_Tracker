@@ -1,0 +1,38 @@
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from .models import DeviceToken
+from .serializers import DeviceTokenSerializer
+
+class DeviceTokenView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        serializer = DeviceTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data['token']
+        
+        # Save or update token
+        device_token, created = DeviceToken.objects.get_or_create(
+            user=request.user,
+            token=token
+        )
+        
+        return Response({
+            "success": True,
+            "data": {"token": token},
+            "message": "Device push token registered successfully."
+        }, status=status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        token = request.data.get('token')
+        if not token:
+            return Response({"success": False, "error": "Token field is required."}, status=400)
+            
+        DeviceToken.objects.filter(user=request.user, token=token).delete()
+        return Response({
+            "success": True,
+            "data": {},
+            "message": "Device token removed successfully."
+        })

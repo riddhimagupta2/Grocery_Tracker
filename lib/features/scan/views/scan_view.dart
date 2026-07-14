@@ -1,0 +1,557 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:io';
+import '../providers/scan_provider.dart';
+import '../../kitchen/providers/kitchen_provider.dart';
+import '../../../data/models/scan_candidate_model.dart';
+import '../../../core/services/image_picker_service.dart';
+import '../../../config/app_colors.dart';
+import '../../../config/app_spacing.dart';
+import '../../../config/app_radius.dart';
+import '../../../config/app_icon_sizes.dart';
+import '../../../config/app_text_styles.dart';
+import '../../../config/app_routes.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/scan_candidate_card.dart';
+import '../../../core/extensions/responsive_context_extension.dart';
+
+class ScanView extends StatefulWidget {
+  const ScanView({super.key});
+
+  @override
+  State<ScanView> createState() => _ScanViewState();
+}
+
+class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin {
+  final ImagePickerService _pickerService = ImagePickerService();
+  late AnimationController _laserController;
+
+  @override
+  void initState() {
+    super.initState();
+    _laserController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _laserController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _capturePhoto() async {
+    final photo = await _pickerService.capturePhoto();
+    if (photo != null && mounted) {
+      context.read<ScanProvider>().addImages([photo]);
+    }
+  }
+
+  Future<void> _pickGallery() async {
+    final photos = await _pickerService.selectMultipleImagesFromGallery();
+    if (photos.isNotEmpty && mounted) {
+      context.read<ScanProvider>().addImages(photos);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scan = context.watch<ScanProvider>();
+
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) scan.clearImages();
+      },
+      child: AppScaffold(
+        body: _buildUIStateBody(scan),
+      ),
+    );
+  }
+
+  Widget _buildUIStateBody(ScanProvider scan) {
+    switch (scan.uiState) {
+      case ScanUIState.uploading:
+        return _buildStageProgress('Uploading images securely...', 0.3);
+      case ScanUIState.analyzing:
+        return _buildStageProgress('AI is identifying groceries and reading package details...', 0.7);
+      case ScanUIState.review:
+        return _buildReviewList(scan);
+      case ScanUIState.success:
+        return _buildSuccessState(scan);
+      case ScanUIState.error:
+        return _buildErrorState(scan);
+      case ScanUIState.idle:
+      default:
+        return _buildCameraCameraSelector(scan);
+    }
+  }
+
+  Widget _buildCameraCameraSelector(ScanProvider scan) {
+    return Column(
+      children: [
+        // Camera Viewfinder Simulation
+        Expanded(
+          flex: 4,
+          child: GestureDetector(
+            onTap: scan.selectedImages.isEmpty ? _capturePhoto : null,
+            child: Container(
+              margin: EdgeInsets.all(AppSpacing.md(context)),
+              decoration: BoxDecoration(
+                color: AppColors.black,
+                borderRadius: BorderRadius.circular(AppRadius.card(context)),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.5), width: 2.0),
+              ),
+              child: Stack(
+                children: [
+                  // Scan Grid Custom Paint overlay
+                  Positioned.fill(
+                    child: CustomPaint(painter: _ScanFramePainter(context: context)),
+                  ),
+                  
+                  if (scan.selectedImages.isNotEmpty)
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadius.card(context) * 0.95),
+                        child: Image.file(
+                          File(scan.selectedImages.last.path),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  else
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.camera_enhance_outlined, size: AppIconSizes.lg(context) * 1.5, color: AppColors.textSecondary),
+                          AppGap.xs(context),
+                          Text(
+                            'Tap here or use controls to scan package',
+                            style: TextStyle(
+                              fontFamily: 'Outfit', 
+                              color: AppColors.textSecondary, 
+                              fontSize: context.scaleFont(14.0),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          )
+                        ],
+                      ),
+                    ),
+
+                  // Scanning Laser Line Animation
+                  if (scan.selectedImages.isEmpty)
+                    Positioned.fill(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return AnimatedBuilder(
+                            animation: _laserController,
+                            builder: (context, child) {
+                              final double top = _laserController.value * constraints.maxHeight;
+                              return Stack(
+                                children: [
+                                  Positioned(
+                                    top: top,
+                                    left: 4,
+                                    right: 4,
+                                    child: Container(
+                                      height: 3,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppColors.primary.withValues(alpha: 0.6),
+                                            blurRadius: 8.0,
+                                            spreadRadius: 2.0,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Photo Preview strip
+        if (scan.selectedImages.isNotEmpty) ...[
+          SizedBox(
+            height: context.scaleHeight(72.0),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.md(context)),
+              itemCount: scan.selectedImages.length,
+              itemBuilder: (ctx, index) {
+                return Stack(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(right: 8.0),
+                      width: context.scaleWidth(72.0),
+                      height: context.scaleHeight(72.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppRadius.chip(context)),
+                        border: Border.all(color: AppColors.cardBorder),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadius.chip(context) * 0.75),
+                        child: Image.file(
+                          File(scan.selectedImages[index].path),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 2.0,
+                      right: 10.0,
+                      child: GestureDetector(
+                        onTap: () => scan.removeImage(index),
+                        child: Container(
+                          padding: const EdgeInsets.all(2.0),
+                          decoration: const BoxDecoration(color: AppColors.danger, shape: BoxShape.circle),
+                          child: Icon(Icons.close, size: AppIconSizes.sm(context) * 0.7, color: Colors.white),
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              },
+            ),
+          ),
+          AppGap.xs(context),
+        ],
+
+        // Controls bar
+        Flexible(
+          flex: 2,
+          fit: FlexFit.loose,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg(context)),
+            child: Column(
+              children: [
+                if (scan.selectedImages.isEmpty) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildControlBtn('Camera', Icons.camera_alt_rounded, _capturePhoto),
+                      _buildControlBtn('Gallery', Icons.photo_library_rounded, _pickGallery),
+                      _buildControlBtn('Manual', Icons.edit_note_rounded, () {
+                        Navigator.pushNamed(context, AppRoutes.manualAdd);
+                      }),
+                    ],
+                  ),
+                ] else ...[
+                  AppButton(
+                    text: 'Analyze ${scan.selectedImages.length} Image(s)',
+                    onPressed: () => scan.startAnalysis(),
+                  ),
+                  AppGap.xs(context),
+                  AppButton(
+                    text: 'Cancel',
+                    onPressed: () => scan.clearImages(),
+                    style: AppButtonStyle.outline,
+                  ),
+                ]
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildControlBtn(String label, IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(AppSpacing.md(context)),
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Icon(icon, size: AppIconSizes.lg(context), color: AppColors.primary),
+          ),
+          AppGap.xs(context),
+          Text(label, style: AppTextStyles.labelMedium(context)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStageProgress(String stageText, double progress) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.xl(context)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(color: AppColors.primary),
+            AppGap.md(context),
+            Text(
+              stageText,
+              style: AppTextStyles.headingMedium(context),
+              textAlign: TextAlign.center,
+            ),
+            AppGap.sm(context),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: AppColors.card,
+                color: AppColors.primary,
+                minHeight: 6.0,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReviewList(ScanProvider scan) {
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.all(AppSpacing.md(context)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('AI Detected', style: AppTextStyles.headingLarge(context)),
+              AppGap.xxs(context),
+              Text(
+                'Review and edit the details before adding them to your kitchen.',
+                style: AppTextStyles.bodyMedium(context),
+              ),
+            ],
+          ),
+        ),
+        const Divider(),
+        
+        Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm(context)),
+            itemCount: scan.candidates.length,
+            itemBuilder: (ctx, index) {
+              final candidate = scan.candidates[index];
+              final isSelected = scan.candidateSelection[candidate.id] ?? true;
+              
+              return ScanCandidateCard(
+                candidate: candidate,
+                isSelected: isSelected,
+                onSelectedChanged: (val) {
+                  scan.toggleCandidateSelection(candidate.id, val ?? true);
+                },
+                onQuantityChanged: (qty) {
+                  scan.updateCandidate(candidate.id, {'quantity': qty});
+                },
+                onEdit: () {
+                  _showEditCandidateDialog(candidate);
+                },
+                onRemove: () {
+                  scan.removeCandidate(candidate.id);
+                },
+              );
+            },
+          ),
+        ),
+        
+        Padding(
+          padding: EdgeInsets.all(AppSpacing.md(context)),
+          child: AppButton(
+            text: 'Add Selected Items to Kitchen',
+            onPressed: () async {
+              final success = await scan.confirmSelectedCandidates(context);
+              if (success && mounted) {
+                // Fetch kitchen items to update list
+                context.read<KitchenProvider>().fetchKitchenItems();
+              }
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  void _showEditCandidateDialog(ScanCandidateModel candidate) {
+    final nameController = TextEditingController(text: candidate.name);
+    final brandController = TextEditingController(text: candidate.brand);
+    final descController = TextEditingController(text: candidate.description);
+    final zoneController = TextEditingController(text: candidate.storageZone);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.card(ctx)),
+          side: const BorderSide(color: AppColors.cardBorder),
+        ),
+        title: Text('Edit Candidate Details', style: AppTextStyles.headingMedium(ctx)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppTextField(controller: nameController, label: 'Item Name'),
+              AppGap.sm(ctx),
+              AppTextField(controller: brandController, label: 'Brand Name'),
+              AppGap.sm(ctx),
+              AppTextField(controller: descController, label: 'Description', maxLines: 2),
+              AppGap.sm(ctx),
+              AppTextField(controller: zoneController, label: 'Storage Zone (fridge, pantry, basket etc.)'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel', style: AppTextStyles.labelMedium(ctx).copyWith(color: AppColors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<ScanProvider>().updateCandidate(candidate.id, {
+                'name': nameController.text,
+                'brand': brandController.text,
+                'description': descController.text,
+                'storage_zone': zoneController.text.toLowerCase().trim(),
+              });
+              Navigator.pop(ctx);
+            },
+            child: Text('Save', style: AppTextStyles.labelMedium(ctx).copyWith(color: AppColors.primary)),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuccessState(ScanProvider scan) {
+    final double iconBoxSize = context.scaleWidth(80.0);
+
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.xl(context)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: iconBoxSize,
+              height: iconBoxSize,
+              decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.12), shape: BoxShape.circle),
+              child: Icon(Icons.check_circle_rounded, size: AppIconSizes.lg(context) * 1.5, color: AppColors.success),
+            ),
+            AppGap.md(context),
+            Text('Items Added!', style: AppTextStyles.displayMedium(context)),
+            AppGap.sm(context),
+            Text(
+              'Successfully validated and saved items to your active pantry inventory.',
+              style: AppTextStyles.bodyLarge(context),
+              textAlign: TextAlign.center,
+            ),
+            AppGap.lg(context),
+            AppButton(
+              text: 'Go to Kitchen',
+              onPressed: () {
+                scan.clearImages();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(ScanProvider scan) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.md(context)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline_rounded, size: AppIconSizes.lg(context) * 2.0, color: AppColors.danger),
+            AppGap.md(context),
+            Text('Scan Failed', style: AppTextStyles.headingLarge(context)),
+            AppGap.xs(context),
+            Text(
+              scan.errorMessage ?? 'An unexpected error occurred during image processing.',
+              style: AppTextStyles.bodyMedium(context),
+              textAlign: TextAlign.center,
+            ),
+            AppGap.md(context),
+            AppButton(
+              text: 'Try Again',
+              onPressed: () => scan.clearImages(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Scanner corners painter
+class _ScanFramePainter extends CustomPainter {
+  final BuildContext context;
+  _ScanFramePainter({required this.context});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.primary
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+
+    final double len = context.scaleWidth(24.0);
+    
+    // Top Left Corner
+    canvas.drawPath(
+      Path()
+        ..moveTo(len, 0)
+        ..lineTo(0, 0)
+        ..lineTo(0, len),
+      paint,
+    );
+
+    // Top Right Corner
+    canvas.drawPath(
+      Path()
+        ..moveTo(size.width - len, 0)
+        ..lineTo(size.width, 0)
+        ..lineTo(size.width, len),
+      paint,
+    );
+
+    // Bottom Left Corner
+    canvas.drawPath(
+      Path()
+        ..moveTo(len, size.height)
+        ..lineTo(0, size.height)
+        ..lineTo(0, size.height - len),
+      paint,
+    );
+
+    // Bottom Right Corner
+    canvas.drawPath(
+      Path()
+        ..moveTo(size.width - len, size.height)
+        ..lineTo(size.width, size.height)
+        ..lineTo(size.width, size.height - len),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
+}
