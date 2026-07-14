@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'app_colour.dart';
+import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData get dark => ThemeData(
@@ -80,7 +80,7 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.white,
-        minimumSize: const Size(double.infinity, 52),
+        minimumSize: const Size(0, 52),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         textStyle: const TextStyle(
           fontFamily: 'Outfit',
@@ -93,7 +93,7 @@ class AppTheme {
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.textPrimary,
         side: const BorderSide(color: AppColors.cardBorder),
-        minimumSize: const Size(double.infinity, 52),
+        minimumSize: const Size(0, 52),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         textStyle: const TextStyle(
           fontFamily: 'Outfit',

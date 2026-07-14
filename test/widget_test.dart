@@ -1,30 +1,50 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:grocery_track/main.dart';
+import 'package:grocery_track/core/widgets/app_button.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('AppButton renders text and triggers callback', (WidgetTester tester) async {
+    bool pressed = false;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Build the widget
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AppButton(
+            text: 'Submit Order',
+            onPressed: () {
+              pressed = true;
+            },
+          ),
+        ),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Verify button text is present
+    expect(find.text('Submit Order'), findsOneWidget);
+    expect(pressed, isFalse);
+
+    // Tap the button
+    await tester.tap(find.text('Submit Order'));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify callback was triggered
+    expect(pressed, isTrue);
+  });
+
+  testWidgets('AppButton shows loader when isLoading is true', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: AppButton(
+            text: 'Loading Item',
+            isLoading: true,
+          ),
+        ),
+      ),
+    );
+
+    // Verify loader is visible, text is not (since loader replaces text child structure or wraps it)
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 }

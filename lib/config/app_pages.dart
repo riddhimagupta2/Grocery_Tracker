@@ -1,75 +1,36 @@
-import 'package:get/get.dart';
-import 'package:grocery_track/modules/home/views/home_view.dart';
-import 'package:grocery_track/modules/kitchen/views/kitchen_views.dart';
-import 'package:grocery_track/modules/profile/view/profile_view.dart';
-import 'package:grocery_track/modules/scan/view/scan_view.dart';
-import '../modules/auth/bindings/auth_binding.dart';
-import '../modules/auth/views/forget_pss.dart';
-import '../modules/auth/views/onbording_screen.dart';
-import '../modules/auth/views/splash_screen.dart';
-import '../modules/auth/views/login_view.dart';
-import '../modules/auth/views/signup_view.dart';
-import '../modules/auth/views/verify_view.dart';
-import '../modules/home/bindings/home_binding.dart';
+import 'package:flutter/material.dart';
 import 'app_routes.dart';
+import '../features/auth/views/splash_view.dart';
+import '../features/onboarding/views/onboarding_view.dart';
+import '../features/auth/views/login_view.dart';
+import '../features/auth/views/signup_view.dart';
+import '../features/auth/views/forgot_password_view.dart';
+import '../features/auth/views/verify_email_view.dart';
+import '../features/home/views/home_shell.dart';
+import '../features/scan/views/scan_view.dart';
+import '../features/scan/views/manual_add_view.dart';
+import '../features/recipes/views/recipe_detail_view.dart';
+import '../data/models/recipe_model.dart';
 
 class AppPages {
-  static final pages = [
-    GetPage(
-      name: AppRoutes.splash,
-      page: () => const SplashView(),
-      binding: AuthBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.onboarding,
-      page: () => const OnboardingView(),
-      binding: AuthBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.login,
-      page: () => LoginView(),
-      binding: AuthBinding(),
-      transition: Transition.rightToLeftWithFade,
-      transitionDuration: const Duration(milliseconds: 350),
-    ),
-    GetPage(
-      name: AppRoutes.signup,
-      page: () => SignupView(),
-      binding: AuthBinding(),
-      transition: Transition.rightToLeftWithFade,
-      transitionDuration: const Duration(milliseconds: 350),
-    ),
-
-    GetPage(
-      name: AppRoutes.forgotPassword,
-      page: () => const ForgotPasswordView(),
-      binding: AuthBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.verifyEmail,
-      page: () => const VerifyEmailView(),
-      binding: AuthBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.home,
-      page: () => const HomeView(),
-      binding: HomeBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.kitchen,
-      page: () => const KitchenView(),
-      binding: HomeBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.scan,
-      page: () => const ScanView(),
-      binding: HomeBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.profile,
-      page: () => const ProfileView(),
-      binding: HomeBinding(),
-    ),
-  ];
+  static Map<String, WidgetBuilder> get routes => {
+    AppRoutes.splash: (context) => const SplashView(),
+    AppRoutes.onboarding: (context) => const OnboardingView(),
+    AppRoutes.login: (context) => const LoginView(),
+    AppRoutes.signup: (context) => const SignupView(),
+    AppRoutes.forgotPassword: (context) => const ForgotPasswordView(),
+    AppRoutes.verifyEmail: (context) => const VerifyEmailView(),
+    AppRoutes.home: (context) => const HomeShell(),
+    AppRoutes.scan: (context) => const ScanView(),
+    
+    // Dynamic/Parameterized route builders
+    AppRoutes.manualAdd: (context) {
+      final zone = ModalRoute.of(context)?.settings.arguments as String?;
+      return ManualAddView(initialZone: zone);
+    },
+    AppRoutes.recipeDetail: (context) {
+      final recipe = ModalRoute.of(context)!.settings.arguments as RecipeModel;
+      return RecipeDetailView(recipe: recipe);
+    },
+  };
 }

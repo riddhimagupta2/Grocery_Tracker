@@ -1,24 +1,42 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
+import 'firebase_options.dart';
+
 import 'config/app_routes.dart';
 import 'config/app_pages.dart';
 import 'config/app_theme.dart';
-import 'core/service/auth_service.dart';
-import 'data/providers/api_client.dart';
-import 'data/repo/auth_repo.dart';
-import 'firebase_options.dart';
+import 'config/app_navigation.dart';
 
-Future<void> main() async {
+import 'features/auth/providers/auth_provider.dart';
+import 'features/onboarding/providers/onboarding_provider.dart';
+import 'features/kitchen/providers/kitchen_provider.dart';
+import 'features/scan/providers/scan_provider.dart';
+import 'features/recipes/providers/recipe_provider.dart';
+import 'features/grocery_list/providers/grocery_list_provider.dart';
+import 'core/services/offline_sync_service.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  OfflineSyncService().initialize();
 
-  await dotenv.load(fileName: ".env");
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // Pass all uncaught errors from the framework to Crashlytics if not running on Web.
+    if (!kIsWeb) {
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    }
+  } catch (e) {
+    debugPrint('Firebase initialization failed: $e');
+  }
 
-
+  // Enforce vertical portrait orientation only
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -31,17 +49,19 @@ Future<void> main() async {
     ),
   );
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  await Hive.initFlutter();
-
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
-  Get.put(UserRepository());
-  Get.put<FirebaseAuthService>(FirebaseAuthService(), permanent: true);
-  Get.put<ApiClient>(ApiClient(), permanent: true);
-
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => OnboardingProvider()),
+        ChangeNotifierProvider(create: (_) => KitchenProvider()),
+        ChangeNotifierProvider(create: (_) => ScanProvider()),
+        ChangeNotifierProvider(create: (_) => RecipeProvider()),
+        ChangeNotifierProvider(create: (_) => GroceryListProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -49,21 +69,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        return GetMaterialApp(
-          title: 'FreshTrack',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.dark,
-          initialRoute: AppRoutes.splash,
-          getPages: AppPages.pages,
-          defaultTransition: Transition.fadeIn,
-          transitionDuration: const Duration(milliseconds: 300),
-
-          locale: const Locale('en', 'IN'),
-          fallbackLocale: const Locale('en', 'US'),
-        );
-      },
+    return MaterialApp(
+      title: 'FreshTrack',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.dark,
+      navigatorKey: AppNavigation.navigatorKey,
+      initialRoute: AppRoutes.splash,
+      routes: AppPages.routes,
+      // Localization defaults
+      locale: const Locale('en', 'IN'),
     );
   }
 }

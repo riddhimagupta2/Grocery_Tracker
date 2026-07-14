@@ -1,40 +1,58 @@
-class Recipe {
+class RecipeModel {
+  final String id;
   final String name;
-  final String emoji;
+  final String iconKey;
   final String cuisine;
   final String dietType;
+  
   final int prepTimeMins;
   final int caloriesPerServing;
   final int servings;
+  
   final List<String> ingredientsUsed;
   final List<String> otherIngredients;
   final List<String> allergens;
   final List<String> steps;
-  final Map<String, dynamic> nutrition;
+  final Map<String, String> nutrition;
+  
   final String tip;
+  final String allergenWarning;
 
-  Recipe({
-    required this.name, required this.emoji, required this.cuisine,
-    required this.dietType, required this.prepTimeMins,
-    required this.caloriesPerServing, required this.servings,
-    required this.ingredientsUsed, required this.otherIngredients,
-    required this.allergens, required this.steps,
-    required this.nutrition, required this.tip,
+  const RecipeModel({
+    required this.id,
+    required this.name,
+    this.iconKey = 'restaurant',
+    required this.cuisine,
+    required this.dietType,
+    required this.prepTimeMins,
+    required this.caloriesPerServing,
+    required this.servings,
+    required this.ingredientsUsed,
+    required this.otherIngredients,
+    required this.allergens,
+    required this.steps,
+    required this.nutrition,
+    required this.tip,
+    required this.allergenWarning,
   });
 
-  factory Recipe.fromJson(Map<String, dynamic> j) => Recipe(
-    name:               j['name']               ?? 'Recipe',
-    emoji:              j['emoji']              ?? '🍛',
-    cuisine:            j['cuisine']            ?? 'Indian',
-    dietType:           j['diet_type']          ?? 'veg',
-    prepTimeMins:       (j['prep_time_mins']    ?? 30) as int,
-    caloriesPerServing: (j['calories_per_serving'] ?? 300) as int,
-    servings:           (j['servings']          ?? 2) as int,
-    ingredientsUsed:    List<String>.from(j['ingredients_used'] ?? []),
-    otherIngredients:   List<String>.from(j['other_ingredients'] ?? []),
-    allergens:          List<String>.from(j['allergens'] ?? []),
-    steps:              List<String>.from(j['steps'] ?? []),
-    nutrition:          Map<String, dynamic>.from(j['nutrition'] ?? {}),
-    tip:                j['tip'] ?? '',
-  );
+  factory RecipeModel.fromJson(Map<String, dynamic> json) {
+    return RecipeModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      iconKey: json['icon_key'] ?? 'restaurant',
+      cuisine: json['cuisine'] ?? '',
+      dietType: json['diet_type'] ?? 'veg',
+      prepTimeMins: int.tryParse(json['prep_time_mins']?.toString() ?? '30') ?? 30,
+      caloriesPerServing: int.tryParse(json['calories_per_serving']?.toString() ?? '200') ?? 200,
+      servings: int.tryParse(json['servings']?.toString() ?? '2') ?? 2,
+      ingredientsUsed: List<String>.from(json['ingredients_used'] ?? []),
+      otherIngredients: List<String>.from(json['other_ingredients'] ?? []),
+      allergens: List<String>.from(json['allergens'] ?? []),
+      steps: List<String>.from(json['steps'] ?? []),
+      nutrition: Map<String, String>.from(json['nutrition'] ?? {}),
+      tip: json['tip'] ?? '',
+      allergenWarning: json['allergen_warning'] ?? '',
+    );
+  }
 }

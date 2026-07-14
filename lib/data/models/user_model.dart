@@ -1,100 +1,100 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class UserModel {
-  final String uid;
-  final String name;
+  final String id;
   final String email;
-  final String? photoUrl;
+  final String displayName;
+  final String? avatarUrl;
+  final bool emailVerified;
+  
   final String dietType;
+  final String cuisinePref;
   final List<String> allergies;
-  final String cuisine;
   final int householdSize;
-  final bool notifyThreeDays;
-  final bool notifyOneDay;
+  
+  final bool notify3Days;
+  final bool notify1Day;
   final bool notifyDailyRecipe;
-  final String? fcmToken;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  
+  final int totalTracked;
+  final int savedFromWaste;
+  final int recipesCooked;
 
   const UserModel({
-    required this.uid,
-    required this.name,
+    required this.id,
     required this.email,
-    this.photoUrl,
-    this.dietType = 'vegetarian',
+    required this.displayName,
+    this.avatarUrl,
+    this.emailVerified = false,
+    this.dietType = 'any',
+    this.cuisinePref = '',
     this.allergies = const [],
-    this.cuisine = 'North Indian',
     this.householdSize = 1,
-    this.notifyThreeDays = true,
-    this.notifyOneDay = true,
-    this.notifyDailyRecipe = false,
-    this.fcmToken,
-    required this.createdAt,
-    required this.updatedAt,
+    this.notify3Days = true,
+    this.notify1Day = true,
+    this.notifyDailyRecipe = true,
+    this.totalTracked = 0,
+    this.savedFromWaste = 0,
+    this.recipesCooked = 0,
   });
 
-  factory UserModel.fromFirestore(DocumentSnapshot doc) {
-    final d = doc.data() as Map<String, dynamic>;
+  factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      uid: doc.id,
-      name: d['name'] ?? '',
-      email: d['email'] ?? '',
-      photoUrl: d['photoUrl'],
-      dietType: d['dietType'] ?? 'vegetarian',
-      allergies: List<String>.from(d['allergies'] ?? []),
-      cuisine: d['cuisine'] ?? 'North Indian',
-      householdSize: d['householdSize'] ?? 1,
-      notifyThreeDays: d['notifyThreeDays'] ?? true,
-      notifyOneDay: d['notifyOneDay'] ?? true,
-      notifyDailyRecipe: d['notifyDailyRecipe'] ?? false,
-      fcmToken: d['fcmToken'],
-      createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt: (d['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      id: json['id'] ?? '',
+      email: json['email'] ?? '',
+      displayName: json['display_name'] ?? '',
+      avatarUrl: json['avatar_url'],
+      emailVerified: json['email_verified'] ?? false,
+      dietType: json['diet_type'] ?? 'any',
+      cuisinePref: json['cuisine_pref'] ?? '',
+      allergies: List<String>.from(json['allergies'] ?? []),
+      householdSize: json['household_size'] ?? 1,
+      notify3Days: json['notify_3_days'] ?? true,
+      notify1Day: json['notify_1_day'] ?? true,
+      notifyDailyRecipe: json['notify_daily_recipe'] ?? true,
+      totalTracked: json['total_tracked'] ?? 0,
+      savedFromWaste: json['saved_from_waste'] ?? 0,
+      recipesCooked: json['recipes_cooked'] ?? 0,
     );
   }
 
-  Map<String, dynamic> toMap() => {
-    'name': name,
-    'email': email,
-    'photoUrl': photoUrl,
-    'dietType': dietType,
+  Map<String, dynamic> toJson() => {
+    'display_name': displayName,
+    'avatar_url': avatarUrl,
+    'diet_type': dietType,
+    'cuisine_pref': cuisinePref,
     'allergies': allergies,
-    'cuisine': cuisine,
-    'householdSize': householdSize,
-    'notifyThreeDays': notifyThreeDays,
-    'notifyOneDay': notifyOneDay,
-    'notifyDailyRecipe': notifyDailyRecipe,
-    'fcmToken': fcmToken,
-    'createdAt': Timestamp.fromDate(createdAt),
-    'updatedAt': Timestamp.fromDate(updatedAt),
+    'household_size': householdSize,
+    'notify_3_days': notify3Days,
+    'notify_1_day': notify1Day,
+    'notify_daily_recipe': notifyDailyRecipe,
   };
 
   UserModel copyWith({
-    String? name,
-    String? email,
-    String? photoUrl,
+    String? displayName,
+    String? avatarUrl,
     String? dietType,
+    String? cuisinePref,
     List<String>? allergies,
-    String? cuisine,
     int? householdSize,
-    bool? notifyThreeDays,
-    bool? notifyOneDay,
+    bool? notify3Days,
+    bool? notify1Day,
     bool? notifyDailyRecipe,
-    String? fcmToken,
-  }) => UserModel(
-    uid: uid,
-    name: name ?? this.name,
-    email: email ?? this.email,
-    photoUrl: photoUrl ?? this.photoUrl,
-    dietType: dietType ?? this.dietType,
-    allergies: allergies ?? this.allergies,
-    cuisine: cuisine ?? this.cuisine,
-    householdSize: householdSize ?? this.householdSize,
-    notifyThreeDays: notifyThreeDays ?? this.notifyThreeDays,
-    notifyOneDay: notifyOneDay ?? this.notifyOneDay,
-    notifyDailyRecipe: notifyDailyRecipe ?? this.notifyDailyRecipe,
-    fcmToken: fcmToken ?? this.fcmToken,
-    createdAt: createdAt,
-    updatedAt: DateTime.now(),
-  );
+  }) {
+    return UserModel(
+      id: id,
+      email: email,
+      displayName: displayName ?? this.displayName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      emailVerified: emailVerified,
+      dietType: dietType ?? this.dietType,
+      cuisinePref: cuisinePref ?? this.cuisinePref,
+      allergies: allergies ?? this.allergies,
+      householdSize: householdSize ?? this.householdSize,
+      notify3Days: notify3Days ?? this.notify3Days,
+      notify1Day: notify1Day ?? this.notify1Day,
+      notifyDailyRecipe: notifyDailyRecipe ?? this.notifyDailyRecipe,
+      totalTracked: totalTracked,
+      savedFromWaste: savedFromWaste,
+      recipesCooked: recipesCooked,
+    );
+  }
 }
