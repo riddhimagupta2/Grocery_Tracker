@@ -11,3 +11,4 @@ Pillow>=10.2.0
 gunicorn>=21.2.0
 fcm-django>=1.0.13
 firebase-admin>=6.4.0
+
