@@ -16,6 +16,7 @@ import '../../../core/extensions/responsive_context_extension.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/services/ai_search_service.dart';
 import '../../kitchen/views/kitchen_item_detail_view.dart';
+import '../../meals/views/meal_log_view.dart';
 import '../../../data/models/grocery_model.dart';
 
 class DashboardView extends StatefulWidget {
@@ -165,6 +166,10 @@ class _DashboardViewState extends State<DashboardView> with TickerProviderStateM
                              _buildAISearchBox(),
                              AppGap.md(context),
 
+                             // Log Meal Quick Action
+                             _buildLogMealAction(),
+                             AppGap.md(context),
+
                              // Expiry Warning Banner (Dynamic)
                              if (kitchen.expiringCount > 0) ...[
                                _buildExpiryAlertBanner(kitchen.expiringCount),
@@ -283,6 +288,64 @@ class _DashboardViewState extends State<DashboardView> with TickerProviderStateM
             _searchQuery = val;
           });
         },
+      ),
+    );
+  }
+
+  Widget _buildLogMealAction() {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MealLogView()),
+        );
+      },
+      borderRadius: BorderRadius.circular(AppRadius.card(context)),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.md(context),
+          vertical: AppSpacing.sm(context),
+        ),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AppColors.primary, Color(0xFF5A4D9A)],
+          ),
+          borderRadius: BorderRadius.circular(AppRadius.card(context)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.restaurant_menu, color: Colors.white),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Log a Meal',
+                    style: AppTextStyles.labelLarge(context).copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Snap a photo to deduct ingredients',
+                    style: AppTextStyles.caption(context).copyWith(
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+          ],
+        ),
       ),
     );
   }

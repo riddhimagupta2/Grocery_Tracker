@@ -11,6 +11,14 @@ class GroceryRepository {
     return list?.map((i) => GroceryModel.fromJson(i)).toList() ?? const [];
   }
 
+  Future<Map<String, dynamic>> lookupBarcode(String barcode) async {
+    final response = await _apiClient.get(
+      ApiEndpoints.groceries + 'barcode-lookup/',
+      queryParameters: {'barcode': barcode},
+    );
+    return response.data['data'] as Map<String, dynamic>;
+  }
+
   Future<GroceryModel> createGrocery(Map<String, dynamic> data) async {
     final response = await _apiClient.post(ApiEndpoints.groceries, data: data);
     return GroceryModel.fromJson(response.data['data']);

@@ -94,30 +94,6 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
-  Future<void> _handleAppleSignIn() async {
-    try {
-      final authProvider = context.read<AuthProvider>();
-      final success = await authProvider.loginWithApple(
-        token: 'mock_apple_identity_token',
-        email: 'apple_chef@example.com',
-        name: 'Gourmet Apple Chef',
-      );
-
-      if (success && mounted) {
-        final onboarding = context.read<OnboardingProvider>();
-        if (!onboarding.onboardingComplete) {
-          Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
-        } else {
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
-        }
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Apple Sign-In failed: $e')));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -250,14 +226,8 @@ class _LoginViewState extends State<LoginView> {
                     style: AppButtonStyle.secondary,
                     icon: Icons.g_mobiledata_rounded,
                   ),
-                  AppGap.xs(context),
-                  AppButton(
-                    text: 'Continue with Apple',
-                    onPressed: _handleAppleSignIn,
-                    style: AppButtonStyle.secondary,
-                    icon: Icons.apple_rounded,
-                  ),
                   AppGap.xl(context),
+
 
                   // Sign Up link
                   Row(

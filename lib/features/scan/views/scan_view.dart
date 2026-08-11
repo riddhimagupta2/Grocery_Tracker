@@ -246,6 +246,9 @@ class _ScanViewState extends State<ScanView> with SingleTickerProviderStateMixin
                     children: [
                       _buildControlBtn('Camera', Icons.camera_alt_rounded, _capturePhoto),
                       _buildControlBtn('Gallery', Icons.photo_library_rounded, _pickGallery),
+                      _buildControlBtn('Barcode', Icons.qr_code_scanner_rounded, () {
+                        Navigator.pushNamed(context, AppRoutes.barcodeScan);
+                      }),
                       _buildControlBtn('Manual', Icons.edit_note_rounded, () {
                         Navigator.pushNamed(context, AppRoutes.manualAdd);
                       }),

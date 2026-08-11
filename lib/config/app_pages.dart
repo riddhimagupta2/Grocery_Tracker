@@ -9,6 +9,7 @@ import '../features/auth/views/verify_email_view.dart';
 import '../features/home/views/home_shell.dart';
 import '../features/scan/views/scan_view.dart';
 import '../features/scan/views/manual_add_view.dart';
+import '../features/scan/views/barcode_scanner_view.dart';
 import '../features/recipes/views/recipe_detail_view.dart';
 import '../data/models/recipe_model.dart';
 
@@ -22,11 +23,17 @@ class AppPages {
     AppRoutes.verifyEmail: (context) => const VerifyEmailView(),
     AppRoutes.home: (context) => const HomeShell(),
     AppRoutes.scan: (context) => const ScanView(),
+    AppRoutes.barcodeScan: (context) => const BarcodeScannerView(),
     
     // Dynamic/Parameterized route builders
     AppRoutes.manualAdd: (context) {
-      final zone = ModalRoute.of(context)?.settings.arguments as String?;
-      return ManualAddView(initialZone: zone);
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map<String, dynamic>) {
+        return ManualAddView(initialData: args);
+      } else if (args is String) {
+        return ManualAddView(initialZone: args);
+      }
+      return const ManualAddView();
     },
     AppRoutes.recipeDetail: (context) {
       final recipe = ModalRoute.of(context)!.settings.arguments as RecipeModel;

@@ -17,6 +17,7 @@ import 'features/kitchen/providers/kitchen_provider.dart';
 import 'features/scan/providers/scan_provider.dart';
 import 'features/recipes/providers/recipe_provider.dart';
 import 'features/grocery_list/providers/grocery_list_provider.dart';
+import 'features/meals/providers/meal_provider.dart';
 import 'core/services/offline_sync_service.dart';
 
 void main() async {
@@ -58,6 +59,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ScanProvider()),
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
         ChangeNotifierProvider(create: (_) => GroceryListProvider()),
+        ChangeNotifierProvider(create: (_) => MealProvider()),
       ],
       child: const MyApp(),
     ),

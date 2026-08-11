@@ -8,6 +8,7 @@ abstract class AppRoutes {
   static const home = '/home';
   static const scan = '/scan';
   static const manualAdd = '/manual-add';
+  static const barcodeScan = '/barcode-scan';
   static const itemDetail = '/item-detail';
   static const recipeDetail = '/recipe-detail';
   static const privacyPolicy = '/privacy-policy';

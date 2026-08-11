@@ -17,6 +17,7 @@ import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/grocery_item_card.dart';
 import '../../../core/services/ai_search_service.dart';
 import 'kitchen_item_detail_view.dart';
+import '../../meals/views/meal_log_view.dart';
 
 class KitchenView extends StatefulWidget {
   const KitchenView({super.key});
@@ -324,37 +325,74 @@ class _KitchenViewState extends State<KitchenView> {
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.manualAdd);
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.md(context),
-                vertical: AppSpacing.xs(context),
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(AppRadius.chip(context)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.add, size: AppIconSizes.sm(context), color: AppColors.white),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Add Item',
-                    style: AppTextStyles.labelMedium(context).copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MealLogView()),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm(context),
+                      vertical: AppSpacing.xs(context),
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryDark,
+                      borderRadius: BorderRadius.circular(AppRadius.chip(context)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.restaurant_menu, size: AppIconSizes.sm(context), color: AppColors.white),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Log Meal',
+                          style: AppTextStyles.labelMedium(context).copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.manualAdd);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md(context),
+                      vertical: AppSpacing.xs(context),
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(AppRadius.chip(context)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.add, size: AppIconSizes.sm(context), color: AppColors.white),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Add',
+                          style: AppTextStyles.labelMedium(context).copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
     );
   }
 

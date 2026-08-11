@@ -12,8 +12,9 @@ import '../../../core/extensions/responsive_context_extension.dart';
 
 class ManualAddView extends StatefulWidget {
   final String? initialZone;
+  final Map<String, dynamic>? initialData;
 
-  const ManualAddView({super.key, this.initialZone});
+  const ManualAddView({super.key, this.initialZone, this.initialData});
 
   @override
   State<ManualAddView> createState() => _ManualAddViewState();
@@ -47,6 +48,22 @@ class _ManualAddViewState extends State<ManualAddView> {
     super.initState();
     if (widget.initialZone != null && _zones.contains(widget.initialZone!.toLowerCase())) {
       _storageZone = widget.initialZone!.toLowerCase();
+    }
+    
+    if (widget.initialData != null) {
+      final d = widget.initialData!;
+      if (d['name'] != null) _nameController.text = d['name'];
+      if (d['brand'] != null) _brandController.text = d['brand'];
+      if (d['barcode'] != null) _barcodeController.text = d['barcode'];
+      if (d['category'] != null && _categories.contains(d['category'])) {
+        _category = d['category'];
+      }
+      if (d['unit'] != null && _units.contains(d['unit'])) {
+        _unit = d['unit'];
+      }
+      if (d['storage_zone'] != null && _zones.contains(d['storage_zone'].toString().toLowerCase())) {
+        _storageZone = d['storage_zone'].toString().toLowerCase();
+      }
     }
   }
 

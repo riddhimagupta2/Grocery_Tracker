@@ -62,4 +62,9 @@ class ApiEndpoints {
   // Notifications
   static const String deviceToken = '/notifications/device-token/';
   static const String notificationPreferences = '/notifications/preferences/';
+
+  // Meals
+  static const String meals = '/meals/';
+  static String mealDetail(String id) => '/meals/$id/';
+  static String confirmMealDeduction(String id) => '/meals/$id/confirm-deduction/';
 }
