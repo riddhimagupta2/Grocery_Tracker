@@ -55,9 +55,19 @@ def process_scan_session_task(self, session_id):
                 except ValueError:
                     return None
 
-            for item_data in items:
-                # Find matching source image from list if source_image_ids matches
-                source_image = images.first()  # Fallback
+            # Map items to source images. The AI may return a 'source_image_index'
+            # field per item. If not present, distribute items evenly across images.
+            image_list = list(images)  # Materialize queryset for index access
+            for idx, item_data in enumerate(items):
+                # Use AI-provided source_image_index if available, else distribute evenly
+                source_idx = item_data.get('source_image_index')
+                if source_idx is not None and 0 <= source_idx < len(image_list):
+                    source_image = image_list[source_idx]
+                elif len(image_list) == 1:
+                    source_image = image_list[0]
+                else:
+                    # Distribute items across images proportionally
+                    source_image = image_list[min(idx, len(image_list) - 1)]
                 
                 # Normalize enums and bounds
                 quantity = 1.0

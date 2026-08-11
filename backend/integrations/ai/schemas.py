@@ -45,6 +45,7 @@ GROCERY_SCAN_SCHEMA = {
                         "type": "STRING",
                         "enum": ["High", "Medium", "Low"]
                     },
+                    "source_image_index": {"type": "INTEGER"},
                     "warnings": {
                         "type": "ARRAY",
                         "items": {"type": "STRING"}
@@ -114,4 +115,33 @@ RECIPE_GENERATION_SCHEMA = {
         }
     },
     "required": ["recipes"]
+}
+
+MEAL_INFERENCE_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "meal_name": {"type": "STRING"},
+        "description": {"type": "STRING"},
+        "ingredients": {
+            "type": "ARRAY",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "pantry_item_id": {"type": "STRING"},
+                    "name": {"type": "STRING"},
+                    "estimated_quantity": {"type": "NUMBER"},
+                    "unit": {
+                        "type": "STRING",
+                        "enum": ["kg", "g", "L", "ml", "pcs", "pack", "bottle", "box", "dozen", "bunch", "packet"]
+                    },
+                    "confidence": {
+                        "type": "STRING",
+                        "enum": ["High", "Medium", "Low"]
+                    }
+                },
+                "required": ["name", "estimated_quantity", "unit", "confidence"]
+            }
+        }
+    },
+    "required": ["meal_name", "description", "ingredients"]
 }

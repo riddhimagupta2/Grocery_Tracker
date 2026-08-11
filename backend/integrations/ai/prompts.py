@@ -43,6 +43,7 @@ Detect:
    - "shelf_life_guidance": practical storage tips to help maintain freshness and reduce premature spoilage, including opening-state guidance or items to avoid storing nearby when relevant. No emojis.
    - "confidence": confidence in detection. MUST choose one from ['High', 'Medium', 'Low'].
    - "date_confidence": confidence in date extraction. MUST choose one from ['High', 'Medium', 'Low'].
+   - "source_image_index": integer index (0-based) of the image this item was detected in, based on the order images were provided.
    - "warnings": array of strings listing quality warnings (e.g., "Image too blurry", "Lighting too dark", "Product label partially hidden", "Expiry text not readable").
 
 Return a valid JSON object matching the requested schema.
@@ -99,4 +100,21 @@ Return JSON matching the following schema only:
     }}
   ]
 }}
+"""
+
+MEAL_INFERENCE_PROMPT = """
+Analyze the provided image(s) and/or text description of a cooked meal.
+Identify the meal and estimate the raw ingredients used to prepare it.
+Match the estimated ingredients against the user's available pantry items provided below.
+DO NOT use emojis anywhere in the response.
+
+Available Pantry Items:
+{available_items}
+
+Text Description: {text_description}
+
+Return JSON matching the schema precisely. For each ingredient:
+1. Estimate the raw quantity and unit used.
+2. If it matches an available pantry item, set the 'pantry_item_id'.
+3. Set confidence to High, Medium, or Low based on how certain you are this ingredient was used and how well it matches the pantry item.
 """

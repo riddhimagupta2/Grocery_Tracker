@@ -61,12 +61,32 @@ def _send_push_notification(user, title, body):
     # Retrieve all tokens registered for this user
     tokens = DeviceToken.objects.filter(user=user)
     if not tokens.exists():
-        logger.info(f"Mock Alert to {user.email}: Title='{title}', Body='{body}' (No device tokens registered)")
+        logger.info(f"Notification skipped for {user.email}: No device tokens registered")
         return
 
     logger.info(f"Sending Push Alert to {user.email}: Title='{title}', Body='{body}' across {tokens.count()} devices.")
-    for token_obj in tokens:
-        # Stub for FCM push delivery (Firebase Admin SDK)
-        # In production, this calls:
-        # messaging.Message(notification=messaging.Notification(title=title, body=body), token=token_obj.token)
-        logger.info(f"FCM Token dispatch: {token_obj.token[:15]}...")
+    
+    # Try sending via Firebase Admin SDK if initialized
+    try:
+        import firebase_admin
+        from firebase_admin import messaging
+        
+        if firebase_admin._apps:
+            for token_obj in tokens:
+                try:
+                    msg = messaging.Message(
+                        notification=messaging.Notification(
+                            title=title,
+                            body=body,
+                        ),
+                        token=token_obj.token,
+                    )
+                    messaging.send(msg)
+                    logger.info(f"FCM Notification sent successfully to token {token_obj.token[:15]}...")
+                except Exception as token_err:
+                    logger.warning(f"Failed to send FCM to token {token_obj.token[:15]}: {str(token_err)}")
+        else:
+            logger.info(f"Firebase Admin not initialized. Simulated push: Title='{title}', Body='{body}'")
+    except ImportError:
+        logger.info(f"firebase-admin module not available. Simulated push: Title='{title}', Body='{body}'")
+

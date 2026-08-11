@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'apps.recipes.apps.RecipesConfig',
     'apps.grocery_lists.apps.GroceryListsConfig',
     'apps.notifications.apps.NotificationsConfig',
+    'apps.meals.apps.MealsConfig',
 ]
 
 MIDDLEWARE = [
@@ -152,7 +153,7 @@ SIMPLE_JWT = {
 }
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = True # In production this would be locked down
+CORS_ALLOW_ALL_ORIGINS = False # In production this would be locked down
 
 # Redis & Celery Settings
 CELERY_BROKER_URL = env('REDIS_URL', default='redis://localhost:6379/0')
@@ -174,3 +175,6 @@ OCR_PROVIDER = env('OCR_PROVIDER', default='TEXT_DETECTION')
 # Scanning validation limits
 AI_MAX_IMAGE_SIZE_BYTES = env.int('AI_MAX_IMAGE_SIZE_BYTES', default=5 * 1024 * 1024)
 AI_MAX_IMAGES_PER_SCAN = env.int('AI_MAX_IMAGES_PER_SCAN', default=10)
+
+# Import security checks so they register on startup
+import config.checks  # noqa: F401

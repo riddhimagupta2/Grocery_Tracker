@@ -6,6 +6,7 @@ from django.utils import timezone
 from .models import Recipe
 from .serializers import RecipeSerializer
 from apps.groceries.models import GroceryItem
+from apps.groceries.services import deduct_pantry_items_bulk
 from integrations.ai.gemini_client import GeminiClient
 from common.exceptions import ResourceNotFoundException, ForbiddenException
 import logging
@@ -110,11 +111,19 @@ class RecipeViewSet(viewsets.ReadOnlyModelViewSet):
         
         with transaction.atomic():
             user = request.user
+            
+            # Deduct items
+            summary, errors = deduct_pantry_items_bulk(user, recipe.ingredients_used, activity_source='recipe_cooked')
+            
             user.recipes_cooked += 1
             user.save(update_fields=['recipes_cooked'])
             
             return Response({
                 "success": True,
-                "data": {"recipes_cooked": user.recipes_cooked},
+                "data": {
+                    "recipes_cooked": user.recipes_cooked,
+                    "deduction_summary": summary,
+                    "deduction_errors": errors
+                },
                 "message": f"Recipe '{recipe.name}' marked as cooked!"
             })

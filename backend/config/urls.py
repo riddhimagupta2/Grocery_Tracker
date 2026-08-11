@@ -10,6 +10,7 @@ v1_patterns = [
     path('recipes/', include('apps.recipes.urls')),
     path('grocery-lists/', include('apps.grocery_lists.urls')),
     path('notifications/', include('apps.notifications.urls')),
+    path('meals/', include('apps.meals.urls')),
 ]
 
 urlpatterns = [

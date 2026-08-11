@@ -8,6 +8,9 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.0.2.2', '*']
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
 
+# Enable CORS for all origins in development
+CORS_ALLOW_ALL_ORIGINS = True
+
 # Enable console logging for local debug
 LOGGING = {
     'version': 1,

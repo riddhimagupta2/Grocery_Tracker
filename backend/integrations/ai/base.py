@@ -12,3 +12,10 @@ class RecipeGenerationService:
         Generates structured chef recipes based on expiring pantry items and dietary preferences.
         """
         raise NotImplementedError("RecipeGenerationService subclasses must implement generate_recipes")
+
+class MealInferenceService:
+    def infer_meal_ingredients(self, image_path: str, text_description: str, available_pantry_items: list) -> dict:
+        """
+        Infers ingredients used in a meal from an image and/or text description, matched against pantry items.
+        """
+        raise NotImplementedError("MealInferenceService subclasses must implement infer_meal_ingredients")

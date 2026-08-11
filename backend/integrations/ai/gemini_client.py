@@ -4,13 +4,13 @@ from django.conf import settings
 from django.utils import timezone
 from PIL import Image
 import google.generativeai as genai
-from .base import GroceryVisionService, RecipeGenerationService
-from .prompts import SYSTEM_INSTRUCTION, GROCERY_SCAN_PROMPT, RECIPE_GENERATION_PROMPT
-from .schemas import GROCERY_SCAN_SCHEMA, RECIPE_GENERATION_SCHEMA
+from .base import GroceryVisionService, RecipeGenerationService, MealInferenceService
+from .prompts import SYSTEM_INSTRUCTION, GROCERY_SCAN_PROMPT, RECIPE_GENERATION_PROMPT, MEAL_INFERENCE_PROMPT
+from .schemas import GROCERY_SCAN_SCHEMA, RECIPE_GENERATION_SCHEMA, MEAL_INFERENCE_SCHEMA
 
 logger = logging.getLogger('freshtrack.ai.gemini')
 
-class GeminiClient(GroceryVisionService, RecipeGenerationService):
+class GeminiClient(GroceryVisionService, RecipeGenerationService, MealInferenceService):
     def __init__(self):
         self.api_key = getattr(settings, 'GEMINI_API_KEY', '')
         self.enabled = bool(self.api_key)
@@ -124,4 +124,52 @@ class GeminiClient(GroceryVisionService, RecipeGenerationService):
 
         except Exception as e:
             logger.error(f"Gemini recipe generation failed: {e}", exc_info=True)
+            raise e
+
+    def infer_meal_ingredients(self, image_path: str, text_description: str, available_pantry_items: list) -> dict:
+        if not self.enabled:
+            logger.warning("Gemini Client is disabled. Meal inference skipped.")
+            return {"meal_name": "Unknown", "description": "", "ingredients": []}
+
+        try:
+            # We can use the scan_model_name for vision capabilities
+            model = genai.GenerativeModel(
+                model_name=self.scan_model_name,
+                system_instruction=SYSTEM_INSTRUCTION
+            )
+
+            items_str = json.dumps(available_items, indent=2)
+            prompt = MEAL_INFERENCE_PROMPT.format(
+                available_items=items_str,
+                text_description=text_description or "None"
+            )
+
+            contents = [prompt]
+            if image_path:
+                logger.info(f"Loading image for Gemini Meal Inference: {image_path}")
+                contents.append(Image.open(image_path))
+
+            logger.info(f"Calling Gemini ({self.scan_model_name}) for meal inference...")
+            
+            generation_config = {
+                "response_mime_type": "application/json",
+                "response_schema": MEAL_INFERENCE_SCHEMA
+            }
+
+            response = model.generate_content(contents, generation_config=generation_config)
+            text_response = response.text.strip()
+
+            if text_response.startswith('```'):
+                lines = text_response.splitlines()
+                if lines[0].startswith('```json'):
+                    text_response = '\n'.join(lines[1:-1])
+                elif lines[0].startswith('```'):
+                    text_response = '\n'.join(lines[1:-1])
+
+            data = json.loads(text_response.strip())
+            logger.info(f"Gemini successfully inferred {len(data.get('ingredients', []))} ingredients.")
+            return data
+
+        except Exception as e:
+            logger.error(f"Gemini meal inference failed: {e}", exc_info=True)
             raise e

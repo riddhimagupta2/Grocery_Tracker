@@ -36,3 +36,40 @@ class DeviceTokenView(APIView):
             "data": {},
             "message": "Device token removed successfully."
         })
+
+
+class NotificationPreferencesView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            "success": True,
+            "data": {
+                "notify_3_days": user.notify_3_days,
+                "notify_1_day": user.notify_1_day,
+                "notify_daily_recipe": user.notify_daily_recipe,
+            }
+        })
+
+    def patch(self, request):
+        user = request.user
+        if 'notify_3_days' in request.data:
+            user.notify_3_days = bool(request.data['notify_3_days'])
+        if 'notify_1_day' in request.data:
+            user.notify_1_day = bool(request.data['notify_1_day'])
+        if 'notify_daily_recipe' in request.data:
+            user.notify_daily_recipe = bool(request.data['notify_daily_recipe'])
+        
+        user.save(update_fields=['notify_3_days', 'notify_1_day', 'notify_daily_recipe'])
+
+        return Response({
+            "success": True,
+            "data": {
+                "notify_3_days": user.notify_3_days,
+                "notify_1_day": user.notify_1_day,
+                "notify_daily_recipe": user.notify_daily_recipe,
+            },
+            "message": "Notification preferences updated successfully."
+        })
+

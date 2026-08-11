@@ -138,6 +138,17 @@ class GoogleLoginView(APIView):
         if not token and not email:
             return Response({"success": False, "error": "Token or email is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # In production with Firebase Admin or Google Auth initialized, verify token payload
+        try:
+            import firebase_admin
+            from firebase_admin import auth as firebase_auth
+            if firebase_admin._apps and token:
+                decoded_token = firebase_auth.verify_id_token(token)
+                email = decoded_token.get('email', email)
+                name = decoded_token.get('name', name)
+        except Exception as e:
+            logger.info(f"Firebase token verification skipped or failed: {str(e)}")
+
         if not email:
             email = f"google_{token[:10]}@example.com"
 
@@ -161,6 +172,7 @@ class GoogleLoginView(APIView):
             },
             "message": "Logged in with Google successfully."
         })
+
 
 class AppleLoginView(APIView):
     permission_classes = (AllowAny,)
