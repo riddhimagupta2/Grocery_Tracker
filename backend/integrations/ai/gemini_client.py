@@ -138,7 +138,7 @@ class GeminiClient(GroceryVisionService, RecipeGenerationService, MealInferenceS
                 system_instruction=SYSTEM_INSTRUCTION
             )
 
-            items_str = json.dumps(available_items, indent=2)
+            items_str = json.dumps(available_pantry_items, indent=2)
             prompt = MEAL_INFERENCE_PROMPT.format(
                 available_items=items_str,
                 text_description=text_description or "None"

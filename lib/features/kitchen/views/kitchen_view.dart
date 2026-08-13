@@ -359,36 +359,6 @@ class _KitchenViewState extends State<KitchenView> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.manualAdd);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md(context),
-                      vertical: AppSpacing.xs(context),
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(AppRadius.chip(context)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.add, size: AppIconSizes.sm(context), color: AppColors.white),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Add',
-                          style: AppTextStyles.labelMedium(context).copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ],
             )
           ],

@@ -3,11 +3,51 @@ import '../../core/api/api_client.dart';
 import '../../core/api/api_endpoints.dart';
 import '../../core/services/secure_storage_service.dart';
 import '../models/user_model.dart';
-import '../../core/utils/app_logger.dart';
 
 class AuthRepository {
   final ApiClient _apiClient = ApiClient();
   final SecureStorageService _secureStorage = SecureStorageService();
+
+  /// Helper to safely process auth responses (JWT tokens + user data)
+  /// Supports both nested structure ({data: {user: {}, tokens: {access, refresh}}})
+  /// and flat structure ({access, refresh, user: {}}).
+  Future<UserModel> _processAuthResponse(dynamic responseData) async {
+    final Map<String, dynamic> map;
+    if (responseData is Map<String, dynamic> &&
+        responseData['success'] == true &&
+        responseData['data'] != null) {
+      map = responseData['data'] as Map<String, dynamic>;
+    } else if (responseData is Map<String, dynamic>) {
+      map = responseData;
+    } else {
+      throw Exception('Invalid authentication response from server');
+    }
+
+    String? access;
+    String? refresh;
+
+    if (map['tokens'] is Map<String, dynamic>) {
+      final tokensMap = map['tokens'] as Map<String, dynamic>;
+      access = tokensMap['access'] as String?;
+      refresh = tokensMap['refresh'] as String?;
+    }
+
+    access ??= map['access'] as String?;
+    refresh ??= map['refresh'] as String?;
+
+    if (access != null) {
+      await _secureStorage.saveAccessToken(access);
+    }
+    if (refresh != null) {
+      await _secureStorage.saveRefreshToken(refresh);
+    }
+
+    if (map['user'] is Map<String, dynamic>) {
+      return UserModel.fromJson(map['user'] as Map<String, dynamic>);
+    } else {
+      return await getProfile();
+    }
+  }
 
   Future<UserModel> register({
     required String email,
@@ -23,15 +63,7 @@ class AuthRepository {
       },
     );
 
-    final data = response.data['data'];
-    final user = UserModel.fromJson(data['user']);
-    final tokens = data['tokens'];
-    
-    // Save tokens in secure storage
-    await _secureStorage.saveAccessToken(tokens['access']);
-    await _secureStorage.saveRefreshToken(tokens['refresh']);
-    
-    return user;
+    return await _processAuthResponse(response.data);
   }
 
   Future<UserModel> login({
@@ -46,31 +78,12 @@ class AuthRepository {
       },
     );
 
-    final Map<String, dynamic> dataMap;
-    if (response.data is Map<String, dynamic> && response.data['success'] == true && response.data['data'] != null) {
-      dataMap = response.data['data'] as Map<String, dynamic>;
-    } else if (response.data is Map<String, dynamic>) {
-      dataMap = response.data as Map<String, dynamic>;
-    } else {
-      throw Exception('Invalid login response type');
-    }
-
-    final accessToken = dataMap['access'] as String?;
-    final refreshToken = dataMap['refresh'] as String?;
-    
-    if (accessToken != null) {
-      await _secureStorage.saveAccessToken(accessToken);
-    }
-    if (refreshToken != null) {
-      await _secureStorage.saveRefreshToken(refreshToken);
-    }
-
-    return await getProfile();
+    return await _processAuthResponse(response.data);
   }
 
   Future<UserModel> getProfile() async {
     final response = await _apiClient.get(ApiEndpoints.me);
-    return UserModel.fromJson(response.data['data']);
+    return UserModel.fromJson(response.data['data'] ?? response.data);
   }
 
   Future<UserModel> updateProfile(Map<String, dynamic> data, {String? avatarPath}) async {
@@ -95,7 +108,8 @@ class AuthRepository {
       data: requestData,
       options: options,
     );
-    return UserModel.fromJson(response.data['data']);
+    final responseData = response.data['data'] ?? response.data;
+    return UserModel.fromJson(responseData);
   }
 
   Future<void> requestPasswordReset(String email) async {
@@ -136,14 +150,7 @@ class AuthRepository {
       },
     );
 
-    final data = response.data['data'];
-    final user = UserModel.fromJson(data['user']);
-    final tokens = data['tokens'];
-
-    await _secureStorage.saveAccessToken(tokens['access']);
-    await _secureStorage.saveRefreshToken(tokens['refresh']);
-
-    return user;
+    return await _processAuthResponse(response.data);
   }
 
   Future<UserModel> loginWithApple({required String token, String? email, String? name}) async {
@@ -156,13 +163,6 @@ class AuthRepository {
       },
     );
 
-    final data = response.data['data'];
-    final user = UserModel.fromJson(data['user']);
-    final tokens = data['tokens'];
-
-    await _secureStorage.saveAccessToken(tokens['access']);
-    await _secureStorage.saveRefreshToken(tokens['refresh']);
-
-    return user;
+    return await _processAuthResponse(response.data);
   }
 }

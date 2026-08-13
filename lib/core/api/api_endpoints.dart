@@ -1,5 +1,7 @@
+import '../../config/app_config.dart';
+
 class ApiEndpoints {
-  static const String baseUrl = 'http://127.0.0.1:8000/api/v1'; // Localhost mapping via adb reverse
+  static const String baseUrl = AppConfig.baseUrl;
 
   // Authentication
   static const String register = '/auth/register/';
